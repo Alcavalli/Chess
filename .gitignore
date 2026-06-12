@@ -1,0 +1,21 @@
+# Build
+build/
+
+# File generati da Emscripten (si riproducono con la build)
+wasm/*.wasm
+wasm/*.js
+!wasm/.gitkeep
+
+# Node
+node_modules/
+
+# Cache Emscripten
+.emscripten_cache/
+emsdk/
+
+# VS Code (opzionale — toglilo se vuoi versionare le impostazioni)
+.vscode/
+
+# Windows
+Thumbs.db
+Desktop.ini
