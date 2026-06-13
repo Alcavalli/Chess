@@ -11,10 +11,11 @@ Board::Board()
         board[1][i] = {PieceType::Pawn, PieceColor::White};
         board[6][i] = {PieceType::Pawn, PieceColor::Black};
     }
-
+    
     std::array<PieceType, Constants::BOARD_DIM> types{
         PieceType::Rook, PieceType::Knight, PieceType::Bishop, PieceType::Queen,
-        PieceType::King, PieceType::Bishop, PieceType::Knight, PieceType::Rook};
+        PieceType::King, PieceType::Bishop, PieceType::Knight, PieceType::Rook
+    };
 
     for (int i{}; i < Constants::BOARD_DIM; ++i)
     {

@@ -72,22 +72,16 @@ std::vector<Move> MoveGenerator::generateRookMoves(const Board& board, PieceColo
 std::vector<Move> MoveGenerator::generateKnightMoves(const Board& board, PieceColor color, int row, int col)
 {
     std::vector<Move> moves;
-    if ((row + 1 >= 0 && row + 1 < Constants::BOARD_DIM) && (col + 2 >= 0 && col + 2 < Constants::BOARD_DIM) && (board.getSquare(row + 1, col + 2) == std::nullopt || board.getSquare(row + 1, col + 2)->color != color))
-        moves.push_back(Move({row, col}, {row + 1, col + 2}));
-    if ((row - 1 >= 0 && row - 1 < Constants::BOARD_DIM) && (col + 2 >= 0 && col + 2 < Constants::BOARD_DIM) && (board.getSquare(row - 1, col + 2) == std::nullopt || board.getSquare(row - 1, col + 2)->color != color))
-        moves.push_back(Move({row, col}, {row - 1, col + 2}));
-    if ((row + 1 >= 0 && row + 1 < Constants::BOARD_DIM) && (col - 2 >= 0 && col - 2 < Constants::BOARD_DIM) && (board.getSquare(row + 1, col - 2) == std::nullopt || board.getSquare(row + 1, col - 2)->color != color))
-        moves.push_back(Move({row, col}, {row + 1, col - 2}));
-    if ((row - 1 >= 0 && row - 1 < Constants::BOARD_DIM) && (col - 2 >= 0 && col - 2 < Constants::BOARD_DIM) && (board.getSquare(row - 1, col - 2) == std::nullopt || board.getSquare(row - 1, col - 2)->color != color))
-        moves.push_back(Move({row, col}, {row - 1, col - 2}));
-    if ((row + 2 >= 0 && row + 2 < Constants::BOARD_DIM) && (col + 1 >= 0 && col + 1 < Constants::BOARD_DIM) && (board.getSquare(row + 2, col + 1) == std::nullopt || board.getSquare(row + 2, col + 1)->color != color))
-        moves.push_back(Move({row, col}, {row + 2, col + 1}));
-    if ((row - 2 >= 0 && row - 2 < Constants::BOARD_DIM) && (col + 1 >= 0 && col + 1 < Constants::BOARD_DIM) && (board.getSquare(row - 2, col + 1) == std::nullopt || board.getSquare(row - 2, col + 1)->color != color))
-        moves.push_back(Move({row, col}, {row - 2, col + 1}));
-    if ((row + 2 >= 0 && row + 2 < Constants::BOARD_DIM) && (col - 1 >= 0 && col - 1 < Constants::BOARD_DIM) && (board.getSquare(row + 2, col - 1) == std::nullopt || board.getSquare(row + 2, col - 1)->color != color))
-        moves.push_back(Move({row, col}, {row + 2, col - 1}));
-    if ((row - 2 >= 0 && row - 2 < Constants::BOARD_DIM) && (col - 1 >= 0 && col - 1 < Constants::BOARD_DIM) && (board.getSquare(row - 2, col - 1) == std::nullopt || board.getSquare(row - 2, col - 1)->color != color))
-        moves.push_back(Move({row, col}, {row - 2, col - 1}));
+    std::array<std::pair<int, int>, 8> offsets{
+        std::pair{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {-2, 1}, {2, -1}, {-2, -1}
+    };
+    for (auto [dr, dc] : offsets)
+    {
+        int new_row = row + dr;
+        int new_col = col + dc;
+        if ((new_row >= 0 && new_row < Constants::BOARD_DIM) && (new_col >= 0 && new_col < Constants::BOARD_DIM) && (board.getSquare(new_row, new_col) == std::nullopt || board.getSquare(new_row, new_col)->color != color))
+            moves.push_back(Move{{row, col}, {new_row, new_col}});
+    }
     return moves;
 }
 
