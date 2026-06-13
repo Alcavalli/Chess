@@ -5,6 +5,6 @@
 
 struct Piece
 {
-    PieceType type;
-    PieceColor color;
+    PieceType type{PieceType::Pawn};        //! Default values = to not
+    PieceColor color{PieceColor::White};    //! leave them uninitialized
 };
