@@ -10,4 +10,5 @@ include_directories(core/include)
 # Per ora nessun file sorgente — aggiungeremo man mano
 add_executable(chess_core
     core/src/main.cpp
+    core/src/Board.cpp
 )
