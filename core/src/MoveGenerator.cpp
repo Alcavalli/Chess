@@ -53,3 +53,61 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor co
         }
     return legal_moves;
 }
+
+// TODO: take in consideration checks
+std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColor color, int row, int col)
+{
+    std::vector<Move> moves;
+
+    return moves;
+}
+
+std::vector<Move> MoveGenerator::generateRookMoves(const Board& board, PieceColor color, int row, int col)
+{
+    std::vector<Move> moves;
+
+    return moves;
+}
+
+std::vector<Move> MoveGenerator::generateKnightMoves(const Board& board, PieceColor color, int row, int col)
+{
+    std::vector<Move> moves;
+    if ((row + 1 >= 0 && row + 1 < Constants::BOARD_DIM) && (col + 2 >= 0 && col + 2 < Constants::BOARD_DIM) && (board.getSquare(row + 1, col + 2) == std::nullopt || board.getSquare(row + 1, col + 2)->color != color))
+        moves.push_back(Move({row, col}, {row + 1, col + 2}));
+    if ((row - 1 >= 0 && row - 1 < Constants::BOARD_DIM) && (col + 2 >= 0 && col + 2 < Constants::BOARD_DIM) && (board.getSquare(row - 1, col + 2) == std::nullopt || board.getSquare(row - 1, col + 2)->color != color))
+        moves.push_back(Move({row, col}, {row - 1, col + 2}));
+    if ((row + 1 >= 0 && row + 1 < Constants::BOARD_DIM) && (col - 2 >= 0 && col - 2 < Constants::BOARD_DIM) && (board.getSquare(row + 1, col - 2) == std::nullopt || board.getSquare(row + 1, col - 2)->color != color))
+        moves.push_back(Move({row, col}, {row + 1, col - 2}));
+    if ((row - 1 >= 0 && row - 1 < Constants::BOARD_DIM) && (col - 2 >= 0 && col - 2 < Constants::BOARD_DIM) && (board.getSquare(row - 1, col - 2) == std::nullopt || board.getSquare(row - 1, col - 2)->color != color))
+        moves.push_back(Move({row, col}, {row - 1, col - 2}));
+    if ((row + 2 >= 0 && row + 2 < Constants::BOARD_DIM) && (col + 1 >= 0 && col + 1 < Constants::BOARD_DIM) && (board.getSquare(row + 2, col + 1) == std::nullopt || board.getSquare(row + 2, col + 1)->color != color))
+        moves.push_back(Move({row, col}, {row + 2, col + 1}));
+    if ((row - 2 >= 0 && row - 2 < Constants::BOARD_DIM) && (col + 1 >= 0 && col + 1 < Constants::BOARD_DIM) && (board.getSquare(row - 2, col + 1) == std::nullopt || board.getSquare(row - 2, col + 1)->color != color))
+        moves.push_back(Move({row, col}, {row - 2, col + 1}));
+    if ((row + 2 >= 0 && row + 2 < Constants::BOARD_DIM) && (col - 1 >= 0 && col - 1 < Constants::BOARD_DIM) && (board.getSquare(row + 2, col - 1) == std::nullopt || board.getSquare(row + 2, col - 1)->color != color))
+        moves.push_back(Move({row, col}, {row + 2, col - 1}));
+    if ((row - 2 >= 0 && row - 2 < Constants::BOARD_DIM) && (col - 1 >= 0 && col - 1 < Constants::BOARD_DIM) && (board.getSquare(row - 2, col - 1) == std::nullopt || board.getSquare(row - 2, col - 1)->color != color))
+        moves.push_back(Move({row, col}, {row - 2, col - 1}));
+    return moves;
+}
+
+std::vector<Move> MoveGenerator::generateBishopMoves(const Board& board, PieceColor color, int row, int col)
+{
+    std::vector<Move> moves;
+
+    return moves;
+}
+
+std::vector<Move> MoveGenerator::generateQueenMoves(const Board& board, PieceColor color, int row, int col)
+{
+    std::vector<Move> moves;
+
+    return moves;
+}
+
+std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColor color, int row, int col)
+{
+    std::vector<Move> moves;
+
+    return moves;
+}
