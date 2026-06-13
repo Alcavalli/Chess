@@ -15,3 +15,11 @@ enum class PieceColor
     White,
     Black
 };
+
+enum class MoveType
+{
+    Normal,
+    Castle,
+    Promotion,
+    EnPassant
+};

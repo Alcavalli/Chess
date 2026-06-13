@@ -25,14 +25,20 @@ Board::Board()
 
 const Square &Board::getSquare(int row, int col) const
 {
-    assert(row >= 0 && row < Constants::BOARD_DIM);     //? Debug session = if condition is false,
-    assert(col >= 0 && col < Constants::BOARD_DIM);     //? the program is stopped
+    assert(row >= 0 && row < Constants::BOARD_DIM);     //? In debug session = if condition is false,
+    assert(col >= 0 && col < Constants::BOARD_DIM);     //? the program is stopped (programmer mistakes)
     return board[row][col];
 }
 
 void Board::setSquare(int row, int col, const Square &sq)
 {
-    assert(row >= 0 && row < Constants::BOARD_DIM);     //? In release = automatically removed
-    assert(col >= 0 && col < Constants::BOARD_DIM);
+    assert(row >= 0 && row < Constants::BOARD_DIM);     //? In release build
+    assert(col >= 0 && col < Constants::BOARD_DIM);     //? = automatically removed
     board[row][col] = sq;
+}
+
+void Board::applyMove(Move move)
+{
+    setSquare(move.arrival_square.first, move.arrival_square.second, getSquare(move.starting_square.first, move.starting_square.second));
+    setSquare(move.starting_square.first, move.starting_square.second, std::nullopt);
 }
