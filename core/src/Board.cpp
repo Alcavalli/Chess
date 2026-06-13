@@ -23,14 +23,14 @@ Board::Board()
     }
 }
 
-const Square &Board::getSquare(int row, int col) const
+const Square& Board::getSquare(int row, int col) const
 {
     assert(row >= 0 && row < Constants::BOARD_DIM);     //? In debug session = if condition is false,
     assert(col >= 0 && col < Constants::BOARD_DIM);     //? the program is stopped (programmer mistakes)
     return board[row][col];
 }
 
-void Board::setSquare(int row, int col, const Square &sq)
+void Board::setSquare(int row, int col, const Square& sq)
 {
     assert(row >= 0 && row < Constants::BOARD_DIM);     //? In release build
     assert(col >= 0 && col < Constants::BOARD_DIM);     //? = automatically removed
