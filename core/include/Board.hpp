@@ -15,5 +15,4 @@ public:
     Board();        //* To place the pieces at the starting position
     const Square& getSquare(int row, int col) const;        //! Don't forget any of the two const
     void setSquare(int row, int col, const Square& sq);
-    // TODO: add validity checks in the source file for both getter and setter
 };
