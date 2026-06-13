@@ -41,4 +41,29 @@ void Board::applyMove(Move move)
 {
     setSquare(move.arrival_square.first, move.arrival_square.second, getSquare(move.starting_square.first, move.starting_square.second));
     setSquare(move.starting_square.first, move.starting_square.second, std::nullopt);
+    switch (move.type_move)
+    {
+    case MoveType::Normal:
+        break;
+    case MoveType::ShortCastle:
+        setSquare(move.arrival_square.first, move.arrival_square.second - 1, getSquare(move.arrival_square.first, Constants::BOARD_DIM - 1));
+        setSquare(move.arrival_square.first, Constants::BOARD_DIM - 1, std::nullopt);
+        break;
+    case MoveType::LongCastle:
+        setSquare(move.arrival_square.first, move.arrival_square.second + 1, getSquare(move.arrival_square.first, 0));
+        setSquare(move.arrival_square.first, 0, std::nullopt);
+        break;
+    case MoveType::Promotion:
+    {   //! Use brackets {} when creating a variable
+        Square sq1{getSquare(move.arrival_square.first, move.arrival_square.second)};
+        sq1->type = *move.promotion;        //! REMEMBER: * because it's std::optional<PieceType>
+        setSquare(move.arrival_square.first, move.arrival_square.second, sq1);
+        break;
+    }
+    case MoveType::EnPassant:
+        setSquare(move.starting_square.first, move.arrival_square.second, std::nullopt);    //? To remove the captured pawn
+        break;
+    default:
+        assert(false);      //? It shouldn't happen to reach the default
+    }
 }

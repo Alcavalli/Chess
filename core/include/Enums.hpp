@@ -19,7 +19,8 @@ enum class PieceColor
 enum class MoveType
 {
     Normal,
-    Castle,
+    ShortCastle,
+    LongCastle,
     Promotion,
     EnPassant
 };
