@@ -104,15 +104,32 @@ std::vector<Move> MoveGenerator::generateKnightMoves(const Board& board, PieceCo
 std::vector<Move> MoveGenerator::generateBishopMoves(const Board& board, PieceColor color, int row, int col)
 {
     std::vector<Move> moves;
-
+    std::array<std::pair<int, int>, 4> offsets{
+        std::pair{1, 1}, {-1, -1}, {1, -1}, {-1, 1}
+    };
+    for (auto [dr, dc] : offsets)
+        for (int i{}; ++i < Constants::BOARD_DIM; )
+        {
+            int new_row{row + dr * i}, new_col{col + dc * i};
+            if (new_row < 0 || new_row >= Constants::BOARD_DIM ||
+                new_col < 0 || new_col >= Constants::BOARD_DIM)   break;
+            if (board.getSquare(new_row, new_col))
+            {
+                if (board.getSquare(new_row, new_col)->color != color)
+                    moves.push_back(Move{{row, col}, {new_row, new_col}});
+                break;
+            }
+            else    moves.push_back(Move{{row, col}, {new_row, new_col}});
+        }
     return moves;
 }
 
 std::vector<Move> MoveGenerator::generateQueenMoves(const Board& board, PieceColor color, int row, int col)
 {
-    std::vector<Move> moves;
-
-    return moves;
+    std::vector<Move> rook_moves{generateRookMoves(board, color, row, col)};
+    std::vector<Move> bishop_moves{generateBishopMoves(board, color, row, col)};
+    rook_moves.insert(rook_moves.end(), bishop_moves.begin(), bishop_moves.end());
+    return rook_moves;
 }
 
 std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColor color, int row, int col)
