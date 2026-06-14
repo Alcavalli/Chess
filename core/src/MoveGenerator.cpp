@@ -54,7 +54,7 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor co
     return legal_moves;
 }
 
-// TODO: take in consideration checks and previous moves
+// TODO: take in consideration checks, special moves and previous moves
 std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColor color, int row, int col)
 {
     std::vector<Move> moves;
@@ -135,6 +135,21 @@ std::vector<Move> MoveGenerator::generateQueenMoves(const Board& board, PieceCol
 std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColor color, int row, int col)
 {
     std::vector<Move> moves;
-
+    std::array<std::pair<int, int>, 8> offsets{
+        std::pair{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}
+    };
+    for (auto [dr, dc] : offsets)
+    {
+        int new_row{row + dr}, new_col{col + dc};
+        if (new_row < 0 || new_row >= Constants::BOARD_DIM ||
+            new_col < 0 || new_col >= Constants::BOARD_DIM)   continue;
+        if (board.getSquare(new_row, new_col))
+        {
+            if (board.getSquare(new_row, new_col)->color != color)
+                moves.push_back(Move{{row, col}, {new_row, new_col}});
+            continue;
+        }
+        else    moves.push_back(Move{{row, col}, {new_row, new_col}});
+    }
     return moves;
 }
