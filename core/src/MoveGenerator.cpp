@@ -54,7 +54,7 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor co
     return legal_moves;
 }
 
-// TODO: take in consideration checks
+// TODO: take in consideration checks and previous moves
 std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColor color, int row, int col)
 {
     std::vector<Move> moves;
@@ -65,7 +65,58 @@ std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColo
 std::vector<Move> MoveGenerator::generateRookMoves(const Board& board, PieceColor color, int row, int col)
 {
     std::vector<Move> moves;
-
+    for (int i{row}; ++i < Constants::BOARD_DIM; )      //* Already checks the board limits
+    {
+        if (board.getSquare(i, col))
+        {
+            if (board.getSquare(i, col)->color == color)    break;
+            else
+            {
+                moves.push_back(Move{{row, col}, {i, col}});
+                break;
+            }
+        }
+        else    moves.push_back(Move{{row, col}, {i, col}});
+    }
+    for (int i{row}; --i >= 0; )
+    {
+        if (board.getSquare(i, col))
+        {
+            if (board.getSquare(i, col)->color == color)    break;
+            else
+            {
+                moves.push_back(Move{{row, col}, {i, col}});
+                break;
+            }
+        }
+        else    moves.push_back(Move{{row, col}, {i, col}});
+    }
+    for (int i{col}; ++i < Constants::BOARD_DIM; )
+    {
+        if (board.getSquare(row, i))
+        {
+            if (board.getSquare(row, i)->color == color)    break;
+            else
+            {
+                moves.push_back(Move{{row, col}, {row, i}});
+                break;
+            }
+        }
+        else    moves.push_back(Move{{row, col}, {row, i}});
+    }
+    for (int i{col}; --i >= 0; )
+    {
+        if (board.getSquare(row, i))
+        {
+            if (board.getSquare(row, i)->color == color)    break;
+            else
+            {
+                moves.push_back(Move{{row, col}, {row, i}});
+                break;
+            }
+        }
+        else    moves.push_back(Move{{row, col}, {row, i}});
+    }
     return moves;
 }
 
