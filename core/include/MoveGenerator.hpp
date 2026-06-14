@@ -15,4 +15,5 @@ private:
     static std::vector<Move> generateBishopMoves(const Board& board, PieceColor color, int row, int col);
     static std::vector<Move> generateQueenMoves(const Board& board, PieceColor color, int row, int col);
     static std::vector<Move> generateKingMoves(const Board& board, PieceColor color, int row, int col);
+    static bool isInCheck(const Board& board, PieceColor color);
 };

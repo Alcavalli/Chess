@@ -63,19 +63,23 @@ std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColo
     if (board.getSquare(row + dir, col) == std::nullopt)
     {
         // Move by 1
-        MoveType type{((color == PieceColor::White && row + dir == Constants::BOARD_DIM - 1) || (color == PieceColor::Black && row + dir == 0)) ? MoveType::Promotion : MoveType::Normal};
+        MoveType type{((color == PieceColor::White && row + dir == Constants::BOARD_DIM - 1) ||
+            (color == PieceColor::Black && row + dir == 0)) ? MoveType::Promotion : MoveType::Normal};
         moves.push_back(Move{{row, col}, {row + dir, col}, type});
         // Move by 2
-        if (((color == PieceColor::White && row == 1) || (color == PieceColor::Black && row == 6)) && board.getSquare(row + dir * 2, col) == std::nullopt)
+        if ((color == PieceColor::White && row == 1 || color == PieceColor::Black && row == 6) &&
+            board.getSquare(row + dir * 2, col) == std::nullopt)
             moves.push_back(Move{{row, col}, {row + dir * 2, col}});
     }
     // Normal capture
     std::array<int, 2> capt{-1, 1};
     for (int i : capt)
     {
-        if (col + i >= 0 && col + i < Constants::BOARD_DIM && board.getSquare(row + dir, col + i) && board.getSquare(row + dir, col + i)->color != color)
+        if (col + i >= 0 && col + i < Constants::BOARD_DIM &&
+            board.getSquare(row + dir, col + i) && board.getSquare(row + dir, col + i)->color != color)
         {
-            MoveType type{((color == PieceColor::White && row + dir == Constants::BOARD_DIM - 1) || (color == PieceColor::Black && row + dir == 0)) ? MoveType::Promotion : MoveType::Normal};
+            MoveType type{((color == PieceColor::White && row + dir == Constants::BOARD_DIM - 1) ||
+            (color == PieceColor::Black && row + dir == 0)) ? MoveType::Promotion : MoveType::Normal};
             moves.push_back(Move{{row, col}, {row + dir, col + i}, type});
         }
     }
@@ -115,7 +119,10 @@ std::vector<Move> MoveGenerator::generateKnightMoves(const Board& board, PieceCo
     {
         int new_row = row + dr;
         int new_col = col + dc;
-        if ((new_row >= 0 && new_row < Constants::BOARD_DIM) && (new_col >= 0 && new_col < Constants::BOARD_DIM) && (board.getSquare(new_row, new_col) == std::nullopt || board.getSquare(new_row, new_col)->color != color))
+        if (new_row < 0 || new_row >= Constants::BOARD_DIM ||
+            new_col < 0 || new_col >= Constants::BOARD_DIM) continue;
+        if (board.getSquare(new_row, new_col) == std::nullopt ||
+            board.getSquare(new_row, new_col)->color != color)
             moves.push_back(Move{{row, col}, {new_row, new_col}});
     }
     return moves;
@@ -172,4 +179,96 @@ std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColo
         else    moves.push_back(Move{{row, col}, {new_row, new_col}});
     }
     return moves;
+}
+
+bool MoveGenerator::isInCheck(const Board& board, PieceColor color)
+{
+    int row{}, col{};
+    for (int i{}; i < Constants::BOARD_DIM; ++i)
+        for (int j{}; j < Constants::BOARD_DIM; ++j)
+            if (board.getSquare(i, j) && board.getSquare(i, j)->type == PieceType::King && board.getSquare(i, j)->color == color)
+                row = i, col = j;
+
+    // Check by rook or queen
+    std::array<std::pair<int, int>, 4> rook_offsets{
+        std::pair{1, 0}, {0, 1}, {-1, 0}, {0, -1}
+    };
+    for (auto [dr, dc] : rook_offsets)
+        for (int i{}; ++i < Constants::BOARD_DIM; )
+        {
+            int new_row{row + dr * i}, new_col{col + dc * i};
+            if (new_row < 0 || new_row >= Constants::BOARD_DIM ||
+                new_col < 0 || new_col >= Constants::BOARD_DIM)   break;
+            if (board.getSquare(new_row, new_col))
+            {
+                if (board.getSquare(new_row, new_col)->color != color &&
+                   (board.getSquare(new_row, new_col)->type == PieceType::Rook ||
+                    board.getSquare(new_row, new_col)->type == PieceType::Queen))
+                    return true;
+                break;      //? If we find a friendly piece
+            }
+        }
+
+    // Check by bishop or queen
+    std::array<std::pair<int, int>, 4> bishop_offsets{
+        std::pair{1, 1}, {-1, -1}, {1, -1}, {-1, 1}
+    };
+    for (auto [dr, dc] : bishop_offsets)
+        for (int i{}; ++i < Constants::BOARD_DIM; )
+        {
+            int new_row{row + dr * i}, new_col{col + dc * i};
+            if (new_row < 0 || new_row >= Constants::BOARD_DIM ||
+                new_col < 0 || new_col >= Constants::BOARD_DIM)   break;
+            if (board.getSquare(new_row, new_col))
+            {
+                if (board.getSquare(new_row, new_col)->color != color &&
+                   (board.getSquare(new_row, new_col)->type == PieceType::Bishop ||
+                    board.getSquare(new_row, new_col)->type == PieceType::Queen))
+                    return true;
+                break;
+            }
+        }
+
+    // Check by knight
+    std::array<std::pair<int, int>, 8> knight_offsets{
+        std::pair{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {-2, 1}, {2, -1}, {-2, -1}
+    };
+    for (auto [dr, dc] : knight_offsets)
+    {
+        int new_row = row + dr;
+        int new_col = col + dc;
+        if (new_row >= 0 && new_row < Constants::BOARD_DIM &&
+            new_col >= 0 && new_col < Constants::BOARD_DIM &&
+            board.getSquare(new_row, new_col) &&
+            board.getSquare(new_row, new_col)->color != color &&
+            board.getSquare(new_row, new_col)->type == PieceType::Knight)
+            return true;
+    }
+
+    // Check by pawn
+    int dir{(color == PieceColor::White) ? +1 : -1};
+    std::array<int, 2> capt{-1, 1};
+    for (int i : capt)
+        if (col + i >= 0 && col + i < Constants::BOARD_DIM &&
+            board.getSquare(row + dir, col + i) &&
+            board.getSquare(row + dir, col + i)->color != color &&
+            board.getSquare(row + dir, col + i)->type == PieceType::Pawn)
+            return true;
+
+    // "Check" by other king
+    std::array<std::pair<int, int>, 8> king_offsets{
+        std::pair{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}
+    };
+    for (auto [dr, dc] : king_offsets)
+    {
+        int new_row{row + dr}, new_col{col + dc};
+        if (new_row >= 0 && new_row < Constants::BOARD_DIM &&
+            new_col >= 0 && new_col < Constants::BOARD_DIM &&
+            board.getSquare(new_row, new_col) &&
+            board.getSquare(new_row, new_col)->color != color &&
+            board.getSquare(new_row, new_col)->type == PieceType::King)
+            return true;
+    }
+
+    return false;
 }
