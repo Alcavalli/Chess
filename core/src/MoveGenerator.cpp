@@ -51,10 +51,18 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor co
                 assert(false);          //! It shouldn't happen to reach the default case
             }
         }
+
+    for (auto it{legal_moves.begin()}; it != legal_moves.end(); )
+    {
+        Board copy_board = board;
+        copy_board.applyMove(*it);
+        if (isInCheck(copy_board, color))   it = legal_moves.erase(it);
+        else    ++it;
+    }
     return legal_moves;
 }
 
-// TODO: take in consideration checks, special moves and previous moves
+// TODO: special moves and previous moves
 std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColor color, int row, int col)
 {
     std::vector<Move> moves;
