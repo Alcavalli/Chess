@@ -58,7 +58,27 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor co
 std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColor color, int row, int col)
 {
     std::vector<Move> moves;
-
+    int dir{(color == PieceColor::White) ? +1 : -1};
+    // Normal moves
+    if (board.getSquare(row + dir, col) == std::nullopt)
+    {
+        // Move by 1
+        MoveType type{((color == PieceColor::White && row + dir == Constants::BOARD_DIM - 1) || (color == PieceColor::Black && row + dir == 0)) ? MoveType::Promotion : MoveType::Normal};
+        moves.push_back(Move{{row, col}, {row + dir, col}, type});
+        // Move by 2
+        if (((color == PieceColor::White && row == 1) || (color == PieceColor::Black && row == 6)) && board.getSquare(row + dir * 2, col) == std::nullopt)
+            moves.push_back(Move{{row, col}, {row + dir * 2, col}});
+    }
+    // Normal capture
+    std::array<int, 2> capt{-1, 1};
+    for (int i : capt)
+    {
+        if (col + i >= 0 && col + i < Constants::BOARD_DIM && board.getSquare(row + dir, col + i) && board.getSquare(row + dir, col + i)->color != color)
+        {
+            MoveType type{((color == PieceColor::White && row + dir == Constants::BOARD_DIM - 1) || (color == PieceColor::Black && row + dir == 0)) ? MoveType::Promotion : MoveType::Normal};
+            moves.push_back(Move{{row, col}, {row + dir, col + i}, type});
+        }
+    }
     return moves;
 }
 
