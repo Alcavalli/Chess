@@ -65,58 +65,23 @@ std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColo
 std::vector<Move> MoveGenerator::generateRookMoves(const Board& board, PieceColor color, int row, int col)
 {
     std::vector<Move> moves;
-    for (int i{row}; ++i < Constants::BOARD_DIM; )      //* Already checks the board limits
-    {
-        if (board.getSquare(i, col))
+    std::array<std::pair<int, int>, 4> offsets{
+        std::pair{1, 0}, {0, 1}, {-1, 0}, {0, -1}
+    };
+    for (auto [dr, dc] : offsets)
+        for (int i{}; ++i < Constants::BOARD_DIM; )
         {
-            if (board.getSquare(i, col)->color == color)    break;
-            else
+            int new_row{row + dr * i}, new_col{col + dc * i};
+            if (new_row < 0 || new_row >= Constants::BOARD_DIM ||
+                new_col < 0 || new_col >= Constants::BOARD_DIM)   break;
+            if (board.getSquare(new_row, new_col))
             {
-                moves.push_back(Move{{row, col}, {i, col}});
+                if (board.getSquare(new_row, new_col)->color != color)
+                    moves.push_back(Move{{row, col}, {new_row, new_col}});
                 break;
             }
+            else    moves.push_back(Move{{row, col}, {new_row, new_col}});
         }
-        else    moves.push_back(Move{{row, col}, {i, col}});
-    }
-    for (int i{row}; --i >= 0; )
-    {
-        if (board.getSquare(i, col))
-        {
-            if (board.getSquare(i, col)->color == color)    break;
-            else
-            {
-                moves.push_back(Move{{row, col}, {i, col}});
-                break;
-            }
-        }
-        else    moves.push_back(Move{{row, col}, {i, col}});
-    }
-    for (int i{col}; ++i < Constants::BOARD_DIM; )
-    {
-        if (board.getSquare(row, i))
-        {
-            if (board.getSquare(row, i)->color == color)    break;
-            else
-            {
-                moves.push_back(Move{{row, col}, {row, i}});
-                break;
-            }
-        }
-        else    moves.push_back(Move{{row, col}, {row, i}});
-    }
-    for (int i{col}; --i >= 0; )
-    {
-        if (board.getSquare(row, i))
-        {
-            if (board.getSquare(row, i)->color == color)    break;
-            else
-            {
-                moves.push_back(Move{{row, col}, {row, i}});
-                break;
-            }
-        }
-        else    moves.push_back(Move{{row, col}, {row, i}});
-    }
     return moves;
 }
 
