@@ -8,10 +8,10 @@ Board::Board()
 
     for (int i{}; i < Constants::BOARD_DIM; ++i)
     {
-        board[1][i] = {PieceType::Pawn, PieceColor::White};
-        board[6][i] = {PieceType::Pawn, PieceColor::Black};
+        board[Constants::WHITE_PAWNS][i] = {PieceType::Pawn, PieceColor::White};
+        board[Constants::BLACK_PAWNS][i] = {PieceType::Pawn, PieceColor::Black};
     }
-    
+
     std::array<PieceType, Constants::BOARD_DIM> types{
         PieceType::Rook, PieceType::Knight, PieceType::Bishop, PieceType::Queen,
         PieceType::King, PieceType::Bishop, PieceType::Knight, PieceType::Rook
@@ -19,8 +19,8 @@ Board::Board()
 
     for (int i{}; i < Constants::BOARD_DIM; ++i)
     {
-        board[0][i] = {types[i], PieceColor::White};
-        board[7][i] = {types[i], PieceColor::Black};
+        board[Constants::WHITE_PIECES][i] = {types[i], PieceColor::White};
+        board[Constants::BLACK_PIECES][i] = {types[i], PieceColor::Black};
     }
 }
 

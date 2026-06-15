@@ -1,5 +1,28 @@
 #pragma once
 
+enum class GameStatus
+{
+    Menu,
+    InProgress,
+    WhiteWin,
+    BlackWin,
+    Draw,
+    Stalemate
+};
+
+enum class GameMode
+{
+    PvP,
+    PvE
+};
+
+enum class Difficulty
+{
+    Easy,
+    Medium,
+    Hard
+};
+
 enum class PieceType
 {
     King,

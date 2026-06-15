@@ -12,4 +12,5 @@ add_executable(chess_core
     core/src/main.cpp
     core/src/Board.cpp
     core/src/MoveGenerator.cpp
+    cors/src/Game.cpp
 )
