@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MoveGenerator.hpp"        //! MoveGenerator already includes anything else
+#include <vector>
 
 class Game
 {
@@ -12,9 +13,9 @@ private:
     Difficulty difficulty{Difficulty::Medium};
     std::vector<Board> board_history{};
     std::vector<Move> move_history{};
-    size_t current_index{};
+    int current_index{};
     void processInput();
-    void update();
+    void update(Move move);
 
 public:
     Game(GameMode mode = GameMode::PvP, Difficulty diff = Difficulty::Medium);
