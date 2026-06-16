@@ -70,11 +70,12 @@ std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColo
     if (board.getSquare(row + dir, col) == std::nullopt)
     {
         // Move by 1
-        MoveType type{((color == PieceColor::White && row + dir == Constants::BOARD_DIM - 1) ||
-            (color == PieceColor::Black && row + dir == 0)) ? MoveType::Promotion : MoveType::Normal};
+        MoveType type{((color == PieceColor::White && row + dir == Constants::BLACK_PIECES) ||
+            (color == PieceColor::Black && row + dir == Constants::WHITE_PIECES)) ? MoveType::Promotion : MoveType::Normal};
         moves.push_back(Move{{row, col}, {row + dir, col}, type});
         // Move by 2
-        if ((color == PieceColor::White && row == 1 || color == PieceColor::Black && row == 6) &&
+        if ((color == PieceColor::White && row == Constants::WHITE_PAWNS ||
+            color == PieceColor::Black && row == Constants::BLACK_PAWNS) &&
             board.getSquare(row + dir * 2, col) == std::nullopt)
             moves.push_back(Move{{row, col}, {row + dir * 2, col}});
     }
@@ -85,13 +86,14 @@ std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColo
         if (col + i >= 0 && col + i < Constants::BOARD_DIM &&
             board.getSquare(row + dir, col + i) && board.getSquare(row + dir, col + i)->color != color)
         {
-            MoveType type{((color == PieceColor::White && row + dir == Constants::BOARD_DIM - 1) ||
-            (color == PieceColor::Black && row + dir == 0)) ? MoveType::Promotion : MoveType::Normal};
+            MoveType type{((color == PieceColor::White && row + dir == Constants::BLACK_PIECES) ||
+            (color == PieceColor::Black && row + dir == Constants::WHITE_PIECES)) ? MoveType::Promotion : MoveType::Normal};
             moves.push_back(Move{{row, col}, {row + dir, col + i}, type});
         }
     }
     // En Passant
-    if (last_move)
+    int ep_row{(color == PieceColor::White) ? 4 : 3};
+    if (last_move && row == ep_row)
     {
         int starting_row{}, arrival_row{};
         if (color == PieceColor::White)
@@ -99,8 +101,7 @@ std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColo
         else    starting_row = Constants::WHITE_PAWNS, arrival_row = starting_row + 2;
         if (last_move->starting_square.first == starting_row &&
             last_move->arrival_square.first == arrival_row &&
-            board.getSquare(last_move->arrival_square.first, last_move->arrival_square.second) &&
-            board.getSquare(last_move->arrival_square.first, last_move->arrival_square.second)->type == PieceType::Pawn &&
+            board.getSquare(arrival_row, last_move->arrival_square.second)->type == PieceType::Pawn &&
            (col == last_move->arrival_square.second + 1 ||
             col == last_move->arrival_square.second - 1))
             moves.push_back(Move{{row, col}, {row + dir, last_move->arrival_square.second}, MoveType::EnPassant});
