@@ -1,7 +1,7 @@
 #include "MoveGenerator.hpp"
 #include <cassert>
 
-std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor color, bool king_moved, bool rook_kingside, bool rook_queenside)
+std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor color, bool king_moved, bool rook_kingside, bool rook_queenside, const std::optional<Move>& last_move)
 {
     std::vector<Move> legal_moves;
     for (int i{}; i < Constants::BOARD_DIM; ++i)
@@ -13,7 +13,7 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor co
             {
             case PieceType::Pawn:
             {
-                std::vector<Move> temp = generatePawnMoves(board, color, i, j);
+                std::vector<Move> temp = generatePawnMoves(board, color, i, j, last_move);
                 legal_moves.insert(legal_moves.end(), temp.begin(), temp.end());    //? To concatenate the vectors
                 break;
             }
@@ -62,8 +62,7 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor co
     return legal_moves;
 }
 
-// TODO: special moves and previous moves
-std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColor color, int row, int col)
+std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColor color, int row, int col, const std::optional<Move>& last_move)
 {
     std::vector<Move> moves;
     int dir{(color == PieceColor::White) ? +1 : -1};
@@ -90,6 +89,21 @@ std::vector<Move> MoveGenerator::generatePawnMoves(const Board& board, PieceColo
             (color == PieceColor::Black && row + dir == 0)) ? MoveType::Promotion : MoveType::Normal};
             moves.push_back(Move{{row, col}, {row + dir, col + i}, type});
         }
+    }
+    // En Passant
+    if (last_move)
+    {
+        int starting_row{}, arrival_row{};
+        if (color == PieceColor::White)
+            starting_row = Constants::BLACK_PAWNS, arrival_row = starting_row - 2;
+        else    starting_row = Constants::WHITE_PAWNS, arrival_row = starting_row + 2;
+        if (last_move->starting_square.first == starting_row &&
+            last_move->arrival_square.first == arrival_row &&
+            board.getSquare(last_move->arrival_square.first, last_move->arrival_square.second) &&
+            board.getSquare(last_move->arrival_square.first, last_move->arrival_square.second)->type == PieceType::Pawn &&
+           (col == last_move->arrival_square.second + 1 ||
+            col == last_move->arrival_square.second - 1))
+            moves.push_back(Move{{row, col}, {row + dir, last_move->arrival_square.second}, MoveType::EnPassant});
     }
     return moves;
 }

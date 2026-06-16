@@ -27,4 +27,5 @@ public:
     void goForward();
     void goToEnd();
     const Board& getBoard() const;
+    const std::optional<Move> getLastMove() const;
 };

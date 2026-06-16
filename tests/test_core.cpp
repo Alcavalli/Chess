@@ -23,7 +23,7 @@ int main()
         std::cout << '\n';
     }
 
-    std::vector<Move> moves{MoveGenerator::generateMoves(board, PieceColor::White)};
+    std::vector<Move> moves{MoveGenerator::generateMoves(board, PieceColor::White, false, false, false, std::nullopt)};
     for (auto x : moves)
         std::cout << '(' << x.starting_square.first << ", " << x.starting_square.second << ") -> (" << x.arrival_square.first << ", " << x.arrival_square.second << ")\n";
 

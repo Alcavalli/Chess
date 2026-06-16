@@ -40,7 +40,7 @@ void Game::update(Move move)
     if (current_index != board_history.size() - 1) return;
 
     bool king_moved{(current_turn == PieceColor::White) ? white_king_moved : black_king_moved}, rook_kingside_moved{(current_turn == PieceColor::White) ? white_rook_kingside_moved : black_rook_kingside_moved}, rook_queenside_moved{(current_turn == PieceColor::White) ? white_rook_queenside_moved : black_rook_queenside_moved};
-    std::vector<Move> legal_moves{MoveGenerator::generateMoves(board, current_turn, king_moved, rook_kingside_moved, rook_queenside_moved)};
+    std::vector<Move> legal_moves{MoveGenerator::generateMoves(board, current_turn, king_moved, rook_kingside_moved, rook_queenside_moved, getLastMove())};
     if (std::find_if(legal_moves.begin(), legal_moves.end(), [move](Move m){ return m.starting_square == move.starting_square && m.arrival_square == move.arrival_square && m.type_move == move.type_move && m.promotion == move.promotion; }) == legal_moves.end())   return;
 
     if (board.getSquare(move.starting_square.first, move.starting_square.second)->type == PieceType::King)
@@ -64,7 +64,7 @@ void Game::update(Move move)
     move_history.push_back(move);
     current_turn = (current_turn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     bool king_moved_2{(current_turn == PieceColor::White) ? white_king_moved : black_king_moved}, rook_kingside_moved_2{(current_turn == PieceColor::White) ? white_rook_kingside_moved : black_rook_kingside_moved}, rook_queenside_moved_2{(current_turn == PieceColor::White) ? white_rook_queenside_moved : black_rook_queenside_moved};
-    if (MoveGenerator::generateMoves(board, current_turn, king_moved_2, rook_kingside_moved_2, rook_queenside_moved_2).empty())
+    if (MoveGenerator::generateMoves(board, current_turn, king_moved_2, rook_kingside_moved_2, rook_queenside_moved_2, getLastMove()).empty())
     {
         if (!MoveGenerator::isInCheck(board, current_turn)) game_state = GameStatus::Draw;
         else    game_state = (current_turn == PieceColor::White) ? GameStatus::WhiteWin : GameStatus::BlackWin;
@@ -96,3 +96,8 @@ void Game::goToEnd()
 }
 
 const Board& Game::getBoard() const { return board; }
+
+const std::optional<Move> Game::getLastMove() const
+{
+    return (move_history.empty()) ? std::nullopt : std::optional(move_history.back());
+}
