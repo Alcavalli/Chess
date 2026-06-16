@@ -14,3 +14,10 @@ add_executable(chess_core
     core/src/MoveGenerator.cpp
     core/src/Game.cpp
 )
+
+add_executable(chess_test
+    tests/test_core.cpp
+    core/src/Board.cpp
+    core/src/MoveGenerator.cpp
+)
+target_include_directories(chess_test PRIVATE core/include)
