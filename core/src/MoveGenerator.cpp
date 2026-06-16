@@ -1,7 +1,7 @@
 #include "MoveGenerator.hpp"
 #include <cassert>
 
-std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor color)
+std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor color, bool king_moved, bool rook_kingside, bool rook_queenside)
 {
     std::vector<Move> legal_moves;
     for (int i{}; i < Constants::BOARD_DIM; ++i)
@@ -43,7 +43,7 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, PieceColor co
             }
             case PieceType::King:
             {
-                std::vector<Move> temp = generateKingMoves(board, color, i, j);
+                std::vector<Move> temp = generateKingMoves(board, color, i, j, king_moved, rook_kingside, rook_queenside);
                 legal_moves.insert(legal_moves.end(), temp.begin(), temp.end());
                 break;
             }
@@ -167,7 +167,7 @@ std::vector<Move> MoveGenerator::generateQueenMoves(const Board& board, PieceCol
     return rook_moves;
 }
 
-std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColor color, int row, int col)
+std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColor color, int row, int col, bool king_moved, bool rook_kingside, bool rook_queenside)
 {
     std::vector<Move> moves;
     std::array<std::pair<int, int>, 8> offsets{
@@ -185,6 +185,36 @@ std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColo
             continue;
         }
         else    moves.push_back(Move{{row, col}, {new_row, new_col}});
+    }
+
+    if (!king_moved)
+    {
+        if (!rook_kingside && board.getSquare(row, col + 1) == std::nullopt && board.getSquare(row, col + 2) == std::nullopt)
+        {
+            Board copy{board};
+            copy.applyMove(Move{{row, col}, {row, col + 1}});
+            if (!isInCheck(copy, color))
+            {
+                copy.applyMove(Move{{row, col + 1}, {row, col + 2}});
+                if (!isInCheck(copy, color))
+                    moves.push_back(Move{{row, col}, {row, col + 2}, MoveType::ShortCastle});
+            }
+        }
+        if (!rook_queenside && board.getSquare(row, col - 1) == std::nullopt && board.getSquare(row, col - 2) == std::nullopt && board.getSquare(row, col - 3) == std::nullopt)
+        {
+            Board copy{board};
+            copy.applyMove(Move{{row, col}, {row, col - 1}});
+            if (!isInCheck(copy, color))
+            {
+                copy.applyMove(Move{{row, col - 1}, {row, col - 2}});
+                if (!isInCheck(copy, color))
+                {
+                    copy.applyMove(Move{{row, col - 2}, {row, col - 3}});
+                    if (!isInCheck(copy, color))
+                        moves.push_back(Move{{row, col}, {row, col - 3}, MoveType::LongCastle});
+                }
+            }
+        }
     }
     return moves;
 }
