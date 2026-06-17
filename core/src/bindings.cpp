@@ -62,9 +62,20 @@ int getGameStatus()         //* Returns an int for each status of the game
     }
 }
 
+std::string getLegalMoves(int row, int col)     //* Returns all legal moves of a piece
+{
+    std::string moves{};
+    std::vector<Move> all_moves{game.getLegalMoves(game.getCurrentTurn())};
+    for (auto& x : all_moves)
+        if (x.starting_square.first == row && x.starting_square.second == col)
+            moves += std::to_string(x.arrival_square.first) + ',' + std::to_string(x.arrival_square.second) + '|';
+    return moves;
+}
+
 EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them callable by JS
 {
     emscripten::function("getBoard", &getBoardString);
     emscripten::function("getCurrentTurn", &getCurrentTurn);
     emscripten::function("getGameStatus", &getGameStatus);
+    emscripten::function("getLegalMoves", &getLegalMoves);
 }

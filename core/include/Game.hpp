@@ -32,4 +32,5 @@ public:
     const std::optional<Move> getLastMove() const;
     const PieceColor getCurrentTurn() const;
     const GameStatus getGameStatus() const;
+    const std::vector<Move> getLegalMoves(PieceColor c) const;
 };
