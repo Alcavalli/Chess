@@ -3,6 +3,7 @@
 #include "MoveGenerator.hpp"        //! MoveGenerator already includes anything else
 #include <vector>
 #include <optional>
+#include "AI.hpp"
 
 class Game
 {
@@ -10,6 +11,7 @@ private:
     Board board{};
     GameStatus game_state{GameStatus::Menu};
     PieceColor current_turn{PieceColor::White}, ai_color{PieceColor::Black};
+    std::optional<AI> environment;
     GameMode game_mode{GameMode::PvP};
     Difficulty difficulty{Difficulty::Medium};
     std::vector<Board> board_history{};

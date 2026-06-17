@@ -6,7 +6,8 @@ enum class GameStatus
     InProgress,
     WhiteWin,
     BlackWin,
-    Draw
+    Draw,
+    Stalemate
 };
 
 enum class GameMode

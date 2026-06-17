@@ -57,12 +57,12 @@ void Board::applyMove(Move move)
     case MoveType::Promotion:
     {   //! Use brackets {} when creating a variable
         Square sq1{getSquare(move.arrival_square.first, move.arrival_square.second)};
-        sq1->type = *move.promotion;        //! REMEMBER: * because it's std::optional<PieceType>
+        sq1->type = move.promotion.value_or(PieceType::Queen);  //? Uses the promotion value (if set), otherwise Queen as default
         setSquare(move.arrival_square.first, move.arrival_square.second, sq1);
         break;
     }
     case MoveType::EnPassant:
-        setSquare(move.starting_square.first, move.arrival_square.second, std::nullopt);    //? To remove the captured pawn
+        setSquare(move.starting_square.first, move.arrival_square.second, std::nullopt);
         break;
     default:
         assert(false);      //? It shouldn't happen to reach the default

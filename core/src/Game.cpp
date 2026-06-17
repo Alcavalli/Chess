@@ -4,6 +4,7 @@
 Game::Game(GameMode mode, Difficulty diff, PieceColor ai_c) : game_mode{mode}, difficulty{diff}, ai_color{ai_c}
 {
     board_history.push_back(board);
+    environment.emplace(difficulty, ai_color);
 }
 
 void Game::run()
@@ -17,7 +18,8 @@ void Game::run()
         }
         else if (ai_color == PieceColor::White)
         {
-            //TODO: AI move
+            auto ai_move{environment->makeMove(board, white_king_moved, white_rook_kingside_moved, white_rook_queenside_moved, black_king_moved, black_rook_kingside_moved, black_rook_queenside_moved, getLastMove())};
+            if (ai_move)    update(*ai_move);
             auto move{processInput()};
             if (move)   update(*move);
         }
@@ -25,7 +27,8 @@ void Game::run()
         {
             auto move{processInput()};
             if (move)   update(*move);
-            //TODO: AI move
+            auto ai_move{environment->makeMove(board, white_king_moved, white_rook_kingside_moved, white_rook_queenside_moved, black_king_moved, black_rook_kingside_moved, black_rook_queenside_moved, getLastMove())};
+            if (ai_move)    update(*ai_move);
         }
     }
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Game.hpp"
+#include "AI.hpp"
 
 char squareToChar(const Square &sq)
 {
@@ -75,6 +76,22 @@ int main()
         std::cout << '\n';
     }
     std::cout << std::noboolalpha << ((moves.back().type_move == MoveType::EnPassant) ? "EnPassant\n" : "/\n");
+
+    AI ai{Difficulty::Easy, PieceColor::Black};
+    Board test_board{};
+    auto ai_move = ai.makeMove(test_board, false, false, false, false, false, false, std::nullopt);
+    if (ai_move)
+    {
+        std::cout << "\n\nAI move: (" << ai_move->starting_square.first << ", " << ai_move->starting_square.second << ") -> (" << ai_move->arrival_square.first << ", " << ai_move->arrival_square.second << ")\n";
+        test_board.applyMove(*ai_move);
+        for (int i{Constants::BOARD_DIM}; --i >= 0;)
+        {
+            for (int j{}; j < Constants::BOARD_DIM; ++j)
+                std::cout << squareToChar(test_board.getSquare(i, j)) << ' ';
+            std::cout << '\n';
+        }
+    }
+    else    std::cout << "AI: no move\n";
 
     system("pause");
     return 0;
