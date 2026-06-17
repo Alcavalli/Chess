@@ -9,7 +9,7 @@ Game::Game(GameMode mode, Difficulty diff, PieceColor ai_c) : game_mode{mode}, d
 
 void Game::run()
 {
-    while (game_state == GameStatus::InProgress)
+    while (game_status == GameStatus::InProgress)
     {
         if (game_mode == GameMode::PvP)
         {
@@ -69,8 +69,8 @@ void Game::update(Move move)
     bool king_moved_2{(current_turn == PieceColor::White) ? white_king_moved : black_king_moved}, rook_kingside_moved_2{(current_turn == PieceColor::White) ? white_rook_kingside_moved : black_rook_kingside_moved}, rook_queenside_moved_2{(current_turn == PieceColor::White) ? white_rook_queenside_moved : black_rook_queenside_moved};
     if (MoveGenerator::generateMoves(board, current_turn, king_moved_2, rook_kingside_moved_2, rook_queenside_moved_2, getLastMove()).empty())
     {
-        if (!MoveGenerator::isInCheck(board, current_turn)) game_state = GameStatus::Draw;
-        else    game_state = (current_turn == PieceColor::White) ? GameStatus::WhiteWin : GameStatus::BlackWin;
+        if (!MoveGenerator::isInCheck(board, current_turn)) game_status = GameStatus::Draw;
+        else    game_status = (current_turn == PieceColor::White) ? GameStatus::WhiteWin : GameStatus::BlackWin;
     }
 }
 
@@ -104,3 +104,7 @@ const std::optional<Move> Game::getLastMove() const
 {
     return (move_history.empty()) ? std::nullopt : std::optional(move_history.back());
 }
+
+const PieceColor Game::getCurrentTurn() const { return current_turn; }
+
+const GameStatus Game::getGameStatus() const { return game_status; }
