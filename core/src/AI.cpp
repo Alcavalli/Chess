@@ -35,20 +35,30 @@ const std::optional<Move> AI::getBestMove(const Board& board, const std::optiona
     {
         Board copy{board};
         copy.applyMove(x);
-        int score{minimax(copy, false)};
-        if (score > best_score) best_move = x;
+        int score{minimax(copy, true, last_m)};
+        if (score > best_score)
+        {
+            best_move = x;
+            best_score = score;
+        }
     }
     return best_move;
 }
 
-int AI::minimax(Board board, bool is_maximizing, int alpha, int beta, int depth) const
+int AI::minimax(Board board, bool is_maximizing, std::optional<Move> last_m, int alpha, int beta, int depth) const
 {
     if (depth == max_depth) return evaluate(board);
 
-    PieceColor col{is_maximizing ? PieceColor::White : PieceColor::Black};
+    PieceColor col{color};
+    if (!is_maximizing) col = (color == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     bool king_moved{(col == PieceColor::White) ? white_king_moved : black_king_moved}, rook_kingside_moved{(col == PieceColor::White) ? white_rook_kingside_moved : black_rook_kingside_moved}, rook_queenside_moved{(col == PieceColor::White) ? white_rook_queenside_moved : black_rook_queenside_moved};
-    std::vector<Move> moves{MoveGenerator::generateMoves(board, col, king_moved, rook_kingside_moved, rook_queenside_moved, last_move)};
-    if (moves.empty())  return INT_MIN;
+    std::vector<Move> moves{MoveGenerator::generateMoves(board, col, king_moved, rook_kingside_moved, rook_queenside_moved, last_m)};
+    if (moves.empty())
+    {
+        if (!MoveGenerator::isInCheck(board, col))  return 0;
+        if (col == color)   return INT_MIN;
+        return INT_MAX;
+    }
 
     if (is_maximizing)
     {
@@ -57,7 +67,7 @@ int AI::minimax(Board board, bool is_maximizing, int alpha, int beta, int depth)
         {
             Board copy{board};
             copy.applyMove(x);
-            int score{minimax(copy, false, alpha, beta, depth + 1)};
+            int score{minimax(copy, false, x, alpha, beta, depth + 1)};
             best = std::max(best, score);
             alpha = std::max(alpha, best);
             if (alpha >= beta)  break;
@@ -71,7 +81,7 @@ int AI::minimax(Board board, bool is_maximizing, int alpha, int beta, int depth)
         {
             Board copy{board};
             copy.applyMove(x);
-            int score{minimax(copy, true, alpha, beta, depth + 1)};
+            int score{minimax(copy, true, x, alpha, beta, depth + 1)};
             best = std::min(best, score);
             beta = std::min(beta, best);
             if (beta <= alpha)  break;
@@ -91,17 +101,17 @@ int AI::evaluate(const Board& board) const
             switch (board.getSquare(i, j)->type)
             {
             case PieceType::Pawn:
-                cnt += z;
+                cnt += z * 100;
                 break;
             case PieceType::Knight:
             case PieceType::Bishop:
-                cnt += z * 3;
+                cnt += z * 300;
                 break;
             case PieceType::Rook:
-                cnt += z * 5;
+                cnt += z * 500;
                 break;
             case PieceType::Queen:
-                cnt += z * 9;
+                cnt += z * 900;
                 break;
             default:
                 cnt = cnt;

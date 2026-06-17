@@ -9,9 +9,8 @@ private:
     Difficulty difficulty{Difficulty::Medium};
     PieceColor color{PieceColor::Black};
     int max_depth{};
-    std::optional<Move> last_move{};
     bool white_king_moved{}, white_rook_kingside_moved{}, white_rook_queenside_moved{}, black_king_moved{}, black_rook_kingside_moved{}, black_rook_queenside_moved{};
-    int minimax(Board board, bool is_maximizing, int alpha = -Constants::INF, int beta = +Constants::INF, int depth = 0) const;
+    int minimax(Board board, bool is_maximizing, std::optional<Move> last_m, int alpha = -Constants::INF, int beta = +Constants::INF, int depth = 0) const;
     const std::optional<Move> getBestMove(const Board& board, const std::optional<Move> last_m);
     int evaluate(const Board& board) const;
 
