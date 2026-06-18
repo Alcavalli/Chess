@@ -1,0 +1,57 @@
+#board          /* Selects the element with id="board" */
+{
+    display: grid;          /* Activates CSS grid */
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+    width: 480px;
+}
+
+#board div      /* Selects all the divs inside #board (so 'cell') */
+{
+    width: 60px;
+    height: 60px;
+    display: flex;              /* "Creates" the invisible axis to align */
+    align-items: center;        /* Centers along the cross axis (vertically) */
+    justify-content: center;    /* Centers along the main axis (horizontally) */
+    font-size: 30px;
+    cursor: pointer;
+}
+
+#board div.light
+{
+    background-color: white;
+}
+
+#board div.dark
+{
+    background-color: #fc94af;
+}
+
+#board div.selected
+{
+    background-color: yellow;
+}
+
+#board div.light.moved
+{
+    background-color: rgba(50, 255, 50);
+}
+
+#board div.dark.moved
+{
+    background-color: rgb(40, 230, 40);
+}
+
+#board div.legal-empty::after
+{
+    content: '';
+    width: 20px;
+    height: 20px;
+    background-color: rgba(255, 0, 0, 0.7);
+    border-radius: 40px;
+}
+
+#board div.legal-capture
+{
+    outline: 3px solid rgba(255, 0, 0, 0.7);
+}

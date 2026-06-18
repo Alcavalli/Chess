@@ -18,12 +18,12 @@ private:
     std::vector<Move> move_history{};
     int current_index{};
     bool white_king_moved{}, white_rook_kingside_moved{}, white_rook_queenside_moved{}, black_king_moved{}, black_rook_kingside_moved{}, black_rook_queenside_moved{};
-    std::optional<Move> processInput();
-    void update(Move move);
 
 public:
     Game(GameMode mode = GameMode::PvP, Difficulty diff = Difficulty::Medium, PieceColor ai_c = PieceColor::Black);
     void run();
+    std::optional<Move> processInput();
+    void update(Move move);
     void goToStart();
     void goBack();
     void goForward();

@@ -1,0 +1,121 @@
+let module = null;
+let selected_square = null;     //? {row, col} or null
+let board_string = '';
+const board_div = document.getElementById("board");
+
+ChessModule().then(m => {
+    module = m;
+    renderBoard();
+});
+
+function renderBoard()
+{
+    // Saves the board string and div
+    board_string = module.getBoard();
+    board_div.innerHTML = '';       //* To empty the #board div
+
+    // Creates the cells
+    for (let row = 7; row >= 0; row--)      //? Start from 7 so that black is up
+        for (let col = 0; col < 8; col++)
+        {
+            const cell = document.createElement("div");
+            const piece = board_string[row * 8 + col];
+            cell.textContent = (piece === '.') ? '' : piece;
+            cell.addEventListener("click", () => handleClick(row, col));    //? If the cell is clicked, it does an action (calling a function in this case)
+            board_div.appendChild(cell);
+
+            if ((row + col) % 2)
+                cell.classList.add("dark");     //? Adds a CSS class 'dark' to the cell
+            else
+                cell.classList.add("light");    //? Adds a CSS class 'light' to the cell
+        }
+};
+
+function handleClick(row, col)
+{
+    clearHighlights();
+    const piece = board_string[row * 8 + col];
+    const turn = module.getCurrentTurn();
+    const cell = board_div.children[(7 - row) * 8 + col];
+
+    if (piece !== '.' && ((turn === 0 && piece === piece.toUpperCase()) || (turn === 1 && piece === piece.toLowerCase())))      //* If clicks a friendly piece
+    {
+        if (selected_square !== null && selected_square.row == row && selected_square.col == col)
+        {
+            clearHighlights();
+            selected_square = null;
+        }
+        else
+        {
+            selected_square = {row, col};
+            cell.classList.add("selected");
+
+            const names = {'P':"Pawn", 'R':"Rook", 'N':"Knight", 'B':"Bishop", 'Q':"Queen", 'K':"King"};
+            const label = document.createElement("div");
+            label.textContent = names[piece.toUpperCase()];
+            label.classList.add("piece-label");
+            cell.appendChild(label);
+            setTimeout(() => label.remove(), 750);          //? Disappears after .75 sec
+
+            const legal_moves = module.getLegalMoves(row, col);
+            const temp = legal_moves.split('|');
+            temp.forEach(coords => {
+                const target_cell = board_div.children[(7 - Number(coords[0])) * 8 + Number(coords[2])];
+                if (board_string[Number(coords[0]) * 8 + Number(coords[2])] === '.')
+                    target_cell.classList.add("legal-empty");
+                else
+                    target_cell.classList.add("legal-capture");
+            });
+        }
+    }
+    else
+    {
+        if (selected_square === null && piece !== '.' && ((turn === 0 && piece === piece.toLowerCase()) || (turn === 1 && piece === piece.toUpperCase())))      //* If clicks an enemy piece that can't eat
+        {
+            const names = {'P':"Pawn", 'R':"Rook", 'N':"Knight", 'B':"Bishop", 'Q':"Queen", 'K':"King"};
+            const label = document.createElement("div");
+            label.textContent = names[piece.toUpperCase()];
+            label.classList.add("piece-label");
+            cell.appendChild(label);
+            setTimeout(() => label.remove(), 750);          //? Disappears after 1.5 sec
+        }
+
+        if (selected_square === null)   return;
+        let exist = false;
+        const legal_moves = module.getLegalMoves(selected_square.row, selected_square.col);
+        const temp = legal_moves.split('|');
+        temp.forEach(coords => {
+            if (Number(coords[0]) === row && Number(coords[2]) === col)   //! Index 1 is a ','
+                exist = true;
+        });
+        if (!exist)
+        {
+            cell.classList.remove("selected");
+            selected_square = null;
+        }
+        else
+        {
+            module.applyMove(selected_square.row, selected_square.col, row, col);
+            renderBoard();
+            const starting_cell = board_div.children[(7 - selected_square.row) * 8 + selected_square.col];
+            const arrival_cell = board_div.children[(7 - row) * 8 + col];
+            starting_cell.classList.add("moved");
+            arrival_cell.classList.add("moved");
+            setTimeout(() => starting_cell.classList.remove("moved"), 1200);
+            setTimeout(() => arrival_cell.classList.remove("moved"), 1200);
+            selected_square = null;
+        }
+    }
+};
+
+function clearHighlights()
+{
+    for (let i = 0; i < 8; i++)
+        for (let j = 0; j < 8; j++)
+        {
+            board_div.children[i * 8 + j].classList.remove("selected");
+            board_div.children[i * 8 + j].classList.remove("legal-empty");
+            board_div.children[i * 8 + j].classList.remove("legal-capture");
+            board_div.children[i * 8 + j].classList.remove("moved");
+        }
+}
