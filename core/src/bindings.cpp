@@ -68,17 +68,60 @@ std::string getLegalMoves(int row, int col)     //* Returns all legal moves of a
     std::vector<Move> all_moves{game.getLegalMoves(game.getCurrentTurn())};
     for (auto& x : all_moves)
         if (x.starting_square.first == row && x.starting_square.second == col)
-            moves += std::to_string(x.arrival_square.first) + ',' + std::to_string(x.arrival_square.second) + '|';
+        {
+            moves += std::to_string(x.arrival_square.first) + ',' + std::to_string(x.arrival_square.second) + ',';
+            switch (x.type_move)
+            {
+            case MoveType::Normal:
+                moves.push_back('0');
+                break;
+            case MoveType::ShortCastle:
+                moves.push_back('1');
+                break;
+            case MoveType::LongCastle:
+                moves.push_back('2');
+                break;
+            case MoveType::EnPassant:
+                moves.push_back('3');
+                break;
+            case MoveType::Promotion:
+                moves.push_back('4');
+                break;
+            default:
+                moves.push_back('5');
+            }
+            moves.push_back('|');
+        }
     return moves;
 }
 
-void applyMove(int from_row, int from_col, int to_row, int to_col)
+void applyMove(int from_row, int from_col, int to_row, int to_col, std::string temp_c)
 {
+    char c = temp_c.front();
     std::vector<Move> moves{game.getLegalMoves(game.getCurrentTurn())};
     for (auto& x : moves)
         if (x.starting_square.first == from_row && x.starting_square.second == from_col &&
             x.arrival_square.first == to_row && x.arrival_square.second == to_col)
+        {
+            switch (c)
+            {
+            case 'N':
+                x.promotion = PieceType::Knight;
+                break;
+            case 'B':
+                x.promotion = PieceType::Bishop;
+                break;
+            case 'R':
+                x.promotion = PieceType::Rook;
+                break;
+            case 'Q':
+                x.promotion = PieceType::Queen;
+                break;
+            default:
+                x.promotion = x.promotion;
+            }
             game.update(x);
+        }
 }
 
 EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them callable by JS

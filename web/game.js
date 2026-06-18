@@ -2,6 +2,7 @@ let module = null;
 let selected_square = null;     //? {row, col} or null
 let board_string = '';
 const board_div = document.getElementById("board");
+let pending_promotion = null;   //? {fromRow, fromCol, toRow, toCol}
 
 ChessModule().then(m => {
     module = m;
@@ -11,6 +12,17 @@ ChessModule().then(m => {
     });
     document.getElementById("play-again").addEventListener("click", () => location.reload());
     document.getElementById("quit").addEventListener("click", () => location.reload());
+
+    ['N', 'B', 'R', 'Q'].forEach(piece => {
+        document.getElementById(piece).addEventListener("click", () => {
+            if (!pending_promotion) return;
+            document.getElementById("promotion-picker").classList.add("hidden");
+            module.applyMove(pending_promotion.fromRow, pending_promotion.fromCol, pending_promotion.toRow, pending_promotion.toCol, piece);
+            pending_promotion = null;
+            renderBoard();
+            checkGameOver();
+        });
+    });
 });
 
 function renderBoard()
@@ -65,6 +77,7 @@ function handleClick(row, col)
             const legal_moves = module.getLegalMoves(row, col);
             const temp = legal_moves.split('|');
             temp.forEach(coords => {
+                if (!coords)    return;     //! Because the last element is an empty string
                 const target_cell = board_div.children[(7 - Number(coords[0])) * 8 + Number(coords[2])];
                 if (board_string[Number(coords[0]) * 8 + Number(coords[2])] === '.')
                     target_cell.classList.add("legal-empty");
@@ -86,12 +99,15 @@ function handleClick(row, col)
         }
 
         if (selected_square === null)   return;
-        let exist = false;
+        let exist = false, promotion = false;
         const legal_moves = module.getLegalMoves(selected_square.row, selected_square.col);
         const temp = legal_moves.split('|');
         temp.forEach(coords => {
-            if (Number(coords[0]) === row && Number(coords[2]) === col)   //! Index 1 is a ','
+            if (!coords)    return;     //! Because the last element is an empty string
+            if (Number(coords[0]) === row && Number(coords[2]) === col)   //! Index 1 and 3 are ','
                 exist = true;
+            if (coords[4] === '4')
+                promotion = true;
         });
         if (!exist)
         {
@@ -100,7 +116,14 @@ function handleClick(row, col)
         }
         else
         {
-            module.applyMove(selected_square.row, selected_square.col, row, col);
+            if (promotion)
+            {
+                pending_promotion = {fromRow: selected_square.row, fromCol: selected_square.col, toRow: row, toCol: col};
+                selected_square = null;
+                document.getElementById("promotion-picker").classList.remove("hidden");
+                return;
+            }
+            module.applyMove(selected_square.row, selected_square.col, row, col, 'P');
             renderBoard();
             const starting_cell = board_div.children[(7 - selected_square.row) * 8 + selected_square.col];
             const arrival_cell = board_div.children[(7 - row) * 8 + col];
