@@ -44,7 +44,7 @@ void Game::update(Move move)
 
     bool king_moved{(current_turn == PieceColor::White) ? white_king_moved : black_king_moved}, rook_kingside_moved{(current_turn == PieceColor::White) ? white_rook_kingside_moved : black_rook_kingside_moved}, rook_queenside_moved{(current_turn == PieceColor::White) ? white_rook_queenside_moved : black_rook_queenside_moved};
     std::vector<Move> legal_moves{MoveGenerator::generateMoves(board, current_turn, king_moved, rook_kingside_moved, rook_queenside_moved, getLastMove())};
-    if (std::find_if(legal_moves.begin(), legal_moves.end(), [move](Move m){ return m.starting_square == move.starting_square && m.arrival_square == move.arrival_square && m.type_move == move.type_move && m.promotion == move.promotion; }) == legal_moves.end())   return;
+    if (std::find_if(legal_moves.begin(), legal_moves.end(), [move](Move m){ return m.starting_square == move.starting_square && m.arrival_square == move.arrival_square && m.type_move == move.type_move; }) == legal_moves.end())   return;
 
     if (board.getSquare(move.starting_square.first, move.starting_square.second)->type == PieceType::King)
     {

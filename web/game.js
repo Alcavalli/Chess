@@ -10,16 +10,17 @@ ChessModule().then(m => {
     document.getElementById("close-overlay").addEventListener("click", () => {
         document.getElementById("game-over").classList.add("hidden");
     });
+    document.getElementById("overlay-blocker").classList.add("hidden");
     document.getElementById("play-again").addEventListener("click", () => location.reload());
     document.getElementById("quit").addEventListener("click", () => location.reload());
 
     ['N', 'B', 'R', 'Q'].forEach(piece => {
         document.getElementById(piece).addEventListener("click", () => {
-            if (!pending_promotion) return;
             document.getElementById("promotion-picker").classList.add("hidden");
+            document.getElementById("overlay-blocker").classList.add("hidden");
             module.applyMove(pending_promotion.fromRow, pending_promotion.fromCol, pending_promotion.toRow, pending_promotion.toCol, piece);
-            pending_promotion = null;
             renderBoard();
+            pending_promotion = null;
             checkGameOver();
         });
     });
@@ -121,6 +122,7 @@ function handleClick(row, col)
                 pending_promotion = {fromRow: selected_square.row, fromCol: selected_square.col, toRow: row, toCol: col};
                 selected_square = null;
                 document.getElementById("promotion-picker").classList.remove("hidden");
+                document.getElementById("overlay-blocker").classList.remove("hidden");
                 return;
             }
             module.applyMove(selected_square.row, selected_square.col, row, col, 'P');
@@ -162,5 +164,6 @@ function checkGameOver()
     };
     document.getElementById("result-message").textContent = message[status];
     document.getElementById("game-over").classList.remove("hidden");
+    document.getElementById("overlay-blocker").classList.remove("hidden");
     return 1;
 }
