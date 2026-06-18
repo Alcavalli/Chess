@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
+        <meta charset = "UTF-8">
         <title>Chess</title>
-        <link rel="stylesheet" href="style.css">
+        <link rel = "stylesheet"  href = "style.css">
     </head>
 
     <body>
-        <div id="board-container">
-            <div id="board"></div>
+        <div id = "board-container">
+            <center>
+                <div id = "board"></div>
+            </center>
         </div>
 
-        <script src="chess.js"></script>
-        <script src="game.js"></script>
+        <div id = "game-over"  class = "hidden">
+            <button id = "close-overlay">✕</button>
+            <p id = "result-message"></p>
+            <button id = "play-again">Play Again</button>
+            <button id = "quit">Leave</button>
+        </div>
+
+        <script src = "chess.js"></script>
+        <script src = "game.js"></script>
     </body>
 </html>

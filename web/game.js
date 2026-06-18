@@ -6,6 +6,11 @@ const board_div = document.getElementById("board");
 ChessModule().then(m => {
     module = m;
     renderBoard();
+    document.getElementById("close-overlay").addEventListener("click", () => {
+        document.getElementById("game-over").classList.add("hidden");
+    });
+    document.getElementById("play-again").addEventListener("click", () => location.reload());
+    document.getElementById("quit").addEventListener("click", () => location.reload());
 });
 
 function renderBoard()
@@ -25,9 +30,9 @@ function renderBoard()
             board_div.appendChild(cell);
 
             if ((row + col) % 2)
-                cell.classList.add("dark");     //? Adds a CSS class 'dark' to the cell
+                cell.classList.add("light");    //? Adds a CSS class 'dark' to the cell
             else
-                cell.classList.add("light");    //? Adds a CSS class 'light' to the cell
+                cell.classList.add("dark");     //? Adds a CSS class 'light' to the cell
         }
 };
 
@@ -70,7 +75,7 @@ function handleClick(row, col)
     }
     else
     {
-        if (selected_square === null && piece !== '.' && ((turn === 0 && piece === piece.toLowerCase()) || (turn === 1 && piece === piece.toUpperCase())))      //* If clicks an enemy piece that can't eat
+        if (piece !== '.' && ((turn === 0 && piece === piece.toLowerCase()) || (turn === 1 && piece === piece.toUpperCase())))      //* If clicks an enemy piece that can't eat
         {
             const names = {'P':"Pawn", 'R':"Rook", 'N':"Knight", 'B':"Bishop", 'Q':"Queen", 'K':"King"};
             const label = document.createElement("div");
@@ -106,6 +111,8 @@ function handleClick(row, col)
             selected_square = null;
         }
     }
+
+    checkGameOver();
 };
 
 function clearHighlights()
@@ -118,4 +125,19 @@ function clearHighlights()
             board_div.children[i * 8 + j].classList.remove("legal-capture");
             board_div.children[i * 8 + j].classList.remove("moved");
         }
+}
+
+function checkGameOver()
+{
+    const status = module.getGameStatus();
+    if (status === 1 || status === 0)   return 0;       //* In Progress (or menu at the moment)
+    const message = {
+        2: "The winner is white!",
+        3: "The winner is black!",
+        4: "Draw!",
+        5: "Stalemate!",
+    };
+    document.getElementById("result-message").textContent = message[status];
+    document.getElementById("game-over").classList.remove("hidden");
+    return 1;
 }
