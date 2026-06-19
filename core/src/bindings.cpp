@@ -124,6 +124,14 @@ void applyMove(int from_row, int from_col, int to_row, int to_col, std::string t
         }
 }
 
+void startGame(int temp_mode, int temp_difficulty, int temp_color)
+{
+    GameMode mode{(temp_mode == 0) ? GameMode::PvP : GameMode::PvE};
+    Difficulty difficulty{(temp_difficulty == 0) ? Difficulty::Easy : ((temp_difficulty == 1) ? Difficulty::Medium : Difficulty::Hard)};
+    PieceColor color{(temp_color == 0) ? PieceColor::White : PieceColor::Black};
+    game = Game{mode, difficulty, color};
+}
+
 EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them callable by JS
 {
     emscripten::function("getBoard", &getBoardString);
@@ -131,4 +139,5 @@ EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them c
     emscripten::function("getGameStatus", &getGameStatus);
     emscripten::function("getLegalMoves", &getLegalMoves);
     emscripten::function("applyMove", &applyMove);
+    emscripten::function("startGame", &startGame);
 }

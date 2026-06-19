@@ -7,17 +7,41 @@
     </head>
 
     <body>
-        <div id = "board-container">
-            <center>
-                <div id = "board"></div>
-            </center>
+        <div id = "screen-home">
+            <button id = "play">Play</button>
+        </div>
+        <div id = "screen-mode"  class = "hidden">
+            <h1>Choose a game mode</h1>
+            <button id = "back-mode">✕</button>
+            <button id = "PvP">PvP (offline)</button>
+            <button id = "PvE">PvE (vs AI)</button>
+        </div>
+        <div id = "screen-difficulty"  class = "hidden">
+            <h1>Choose a difficulty</h1>
+            <button id = "back-difficulty">✕</button>
+            <button id = "easy">Easy</button>
+            <button id = "medium">Medium</button>
+            <button id = "hard">Hard</button>
+        </div>
+        <div id = "screen-color"  class = "hidden">
+            <h1>Choose your color</h1>
+            <button id = "back-color">✕</button>
+            <button id = "white">White</button>
+            <button id = "black">Black</button>
+            <button id = "random">Random</button>
+        </div>
+        <div id = "screen-game"  class = "hidden">
+            <div id = "board-container">
+                <button id = "quit-game">✕</button>
+                <center><div id = "board"></div></center>
+            </div>
         </div>
 
         <div id = "game-over"  class = "hidden">
             <button id = "close-overlay">✕</button>
             <p id = "result-message"></p>
             <button id = "play-again">Play Again</button>
-            <button id = "quit">Leave</button>
+            <button id = "quit-over">Leave</button>
         </div>
 
         <div id = "overlay-blocker"  class = "hidden"></div>
