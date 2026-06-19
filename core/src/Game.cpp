@@ -70,7 +70,7 @@ void Game::update(Move move)
     if (MoveGenerator::generateMoves(board, current_turn, king_moved_2, rook_kingside_moved_2, rook_queenside_moved_2, getLastMove()).empty())
     {
         if (!MoveGenerator::isInCheck(board, current_turn)) game_status = GameStatus::Draw;
-        else    game_status = (current_turn == PieceColor::White) ? GameStatus::WhiteWin : GameStatus::BlackWin;
+        else    game_status = (current_turn == PieceColor::White) ? GameStatus::BlackWin : GameStatus::WhiteWin;
     }
 }
 
@@ -113,4 +113,10 @@ const std::vector<Move> Game::getLegalMoves(PieceColor c) const
 {
     bool king_moved{(c == PieceColor::White) ? white_king_moved : black_king_moved}, rook_king_moved{(c == PieceColor::White) ? white_rook_kingside_moved : black_rook_kingside_moved}, rook_queen_moved{(c == PieceColor::White) ? white_rook_queenside_moved : black_rook_queenside_moved};
     return MoveGenerator::generateMoves(board, c, king_moved, rook_king_moved, rook_queen_moved, getLastMove());
+}
+
+const std::optional<Move> Game::getAiMove()
+{
+    if (!environment) return std::nullopt;
+    return environment->makeMove(board, white_king_moved, white_rook_kingside_moved, white_rook_queenside_moved, black_king_moved, black_rook_kingside_moved, black_rook_queenside_moved, getLastMove());
 }

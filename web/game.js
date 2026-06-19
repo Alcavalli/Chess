@@ -6,6 +6,7 @@ let pending_promotion = null;   //? {fromRow, fromCol, toRow, toCol}
 let chosen_mode = null;
 let chosen_difficulty = null;
 let chosen_color = null;
+let last_move = null;           //? {fromRow, fromCol, toRow, toCol}
 
 ChessModule().then(m => {
     module = m;
@@ -24,9 +25,20 @@ ChessModule().then(m => {
     document.getElementById("black").addEventListener("click", () => { chosen_color = 1; startNewGame(); });
     document.getElementById("random").addEventListener("click", () => { chosen_color = Math.random() < 0.5 ? 0 : 1; startNewGame(); });
     document.getElementById("quit-game").addEventListener("click", () => renderHome());
-    document.getElementById("close-overlay").addEventListener("click", () => document.getElementById("game-over").classList.add("hidden"));
-    document.getElementById("play-again").addEventListener("click", () => location.reload());
-    document.getElementById("quit-over").addEventListener("click", () => renderHome());
+    document.getElementById("close-overlay").addEventListener("click", () => {
+        document.getElementById("game-over").classList.add("hidden");
+        document.getElementById("overlay-blocker").classList.add("hidden");
+    });
+    document.getElementById("play-again").addEventListener("click", () => {
+        document.getElementById("game-over").classList.add("hidden");
+        document.getElementById("overlay-blocker").classList.add("hidden");
+        startNewGame();
+    });
+    document.getElementById("quit-over").addEventListener("click", () => {
+        document.getElementById("game-over").classList.add("hidden");
+        document.getElementById("overlay-blocker").classList.add("hidden");
+        renderHome();
+    });
 
     ['N', 'B', 'R', 'Q'].forEach(piece => {
         document.getElementById(piece).addEventListener("click", () => {
@@ -65,12 +77,12 @@ function renderColor()
 
 function startNewGame()
 {
-    module.startGame(chosen_mode, chosen_difficulty, chosen_color);
+    module.startGame(chosen_mode, chosen_difficulty, (chosen_color === 0) ? 1 : 0);
     showScreen("game");
-    renderBoard();
+    renderBoard(true);
 }
 
-function renderBoard()
+function renderBoard(new_game)
 {
     // Saves the board string and div
     board_string = module.getBoard();
@@ -97,16 +109,32 @@ function renderBoard()
             else
                 cell.classList.add("dark");     //? Adds a CSS class 'light' to the cell
         }
+
+    if (last_move && !new_game)
+    {
+        if (chosen_color)
+        {
+            board_div.children[last_move.fromRow * 8 + (7 - last_move.fromCol)].classList.add("moved");
+            board_div.children[last_move.toRow * 8 + (7 - last_move.toCol)].classList.add("moved");
+        }
+        else
+        {
+            board_div.children[(7 - last_move.fromRow) * 8 + last_move.fromCol].classList.add("moved");
+            board_div.children[(7 - last_move.toRow) * 8 + last_move.toCol].classList.add("moved");
+        }
+    }
 };
 
 function handleClick(row, col)
 {
     clearHighlights();
+    last_move = null;
+
     const piece = board_string[row * 8 + col];
-    const turn = module.getCurrentTurn();
+    const turn = (chosen_mode === 0) ? module.getCurrentTurn() : chosen_color;
     let cell = null;
     if (chosen_color)
-        cell = board_div.children[row * 8 + (7- col)];
+        cell = board_div.children[row * 8 + (7 - col)];
     else
         cell = board_div.children[(7 - row) * 8 + col];
 
@@ -166,7 +194,10 @@ function handleClick(row, col)
         temp.forEach(coords => {
             if (!coords)    return;     //! Because the last element is an empty string
             if (Number(coords[0]) === row && Number(coords[2]) === col)   //! Index 1 and 3 are ','
+            {
                 exist = true;
+                console.log("Mossa mia: " + coords);
+            }
             if (coords[4] === '4')
                 promotion = true;
         });
@@ -186,7 +217,7 @@ function handleClick(row, col)
                 return;
             }
             module.applyMove(selected_square.row, selected_square.col, row, col, 'P');
-            renderBoard();
+            renderBoard(false);
             let starting_cell, arrival_cell;
             if (chosen_color)
             {
@@ -200,9 +231,31 @@ function handleClick(row, col)
             }
             starting_cell.classList.add("moved");
             arrival_cell.classList.add("moved");
-            setTimeout(() => starting_cell.classList.remove("moved"), 1200);
-            setTimeout(() => arrival_cell.classList.remove("moved"), 1200);
+            last_move = {fromRow: selected_square.row, fromCol: selected_square.col, toRow: row, toCol: col};
             selected_square = null;
+
+            if (chosen_mode && module.getGameStatus() === 1)        //? PvE
+            {
+                setTimeout(() => {
+                    const ai_move_str = module.getAiMove();
+                    console.log("Mossa ai: " + ai_move_str);
+                    if (!ai_move_str) return;
+                    const parts = ai_move_str.split(',');
+                    module.applyMove(Number(parts[0]), Number(parts[1]), Number(parts[2]), Number(parts[3]), 'Q');
+                    last_move = {fromRow: Number(parts[0]), fromCol: Number(parts[1]), toRow: Number(parts[2]), toCol: Number(parts[3])};
+                    renderBoard(false);
+                    checkGameOver();
+                }, 500);
+            }
+
+            if (chosen_mode === 0)      //* To rotate the board every turn
+            {
+                chosen_color = turn === 0 ? 1 : 0;
+                const blocker = document.getElementById("overlay-blocker");
+                blocker.style.backgroundColor = "transparent";
+                blocker.classList.remove("hidden");
+                setTimeout(() => { blocker.style.backgroundColor = ""; blocker.classList.add("hidden"); renderBoard(); }, 1000);
+            }
         }
     }
 
@@ -217,14 +270,13 @@ function clearHighlights()
             board_div.children[i * 8 + j].classList.remove("selected");
             board_div.children[i * 8 + j].classList.remove("legal-empty");
             board_div.children[i * 8 + j].classList.remove("legal-capture");
-            board_div.children[i * 8 + j].classList.remove("moved");
         }
 }
 
 function checkGameOver()
 {
     const status = module.getGameStatus();
-    if (status === 1 || status === 0)   return 0;       //* In Progress (or menu)
+    if (status === 1)   return 0;       //* In Progress
     const message = {
         2: "The winner is white!",
         3: "The winner is black!",

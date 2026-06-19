@@ -132,6 +132,35 @@ void startGame(int temp_mode, int temp_difficulty, int temp_color)
     game = Game{mode, difficulty, color};
 }
 
+std::string getAiMove()
+{
+    std::optional<Move> temp_move{game.getAiMove()};
+    if (!temp_move) return "";
+
+    std::string move{std::to_string(temp_move->starting_square.first) + ',' + std::to_string(temp_move->starting_square.second) + ',' + std::to_string(temp_move->arrival_square.first) + ',' + std::to_string(temp_move->arrival_square.second) + ','};
+    switch (temp_move->type_move)
+    {
+    case MoveType::Normal:
+        move.push_back('0');
+        break;
+    case MoveType::ShortCastle:
+        move.push_back('1');
+        break;
+    case MoveType::LongCastle:
+        move.push_back('2');
+        break;
+    case MoveType::EnPassant:
+        move.push_back('3');
+        break;
+    case MoveType::Promotion:
+        move.push_back('4');
+        break;
+    default:
+        move.push_back('5');
+    }
+    return move;
+}
+
 EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them callable by JS
 {
     emscripten::function("getBoard", &getBoardString);
@@ -140,4 +169,5 @@ EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them c
     emscripten::function("getLegalMoves", &getLegalMoves);
     emscripten::function("applyMove", &applyMove);
     emscripten::function("startGame", &startGame);
+    emscripten::function("getAiMove", &getAiMove);
 }

@@ -9,7 +9,7 @@ class Game
 {
 private:
     Board board{};
-    GameStatus game_status{GameStatus::Menu};
+    GameStatus game_status{GameStatus::InProgress};
     PieceColor current_turn{PieceColor::White}, ai_color{PieceColor::Black};
     std::optional<AI> environment;
     GameMode game_mode{GameMode::PvP};
@@ -33,4 +33,5 @@ public:
     const PieceColor getCurrentTurn() const;
     const GameStatus getGameStatus() const;
     const std::vector<Move> getLegalMoves(PieceColor c) const;
+    const std::optional<Move> getAiMove();
 };
