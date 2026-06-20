@@ -7,6 +7,7 @@ let chosen_mode = null;
 let chosen_difficulty = null;
 let chosen_color = null;
 let last_move = null;           //? {fromRow, fromCol, toRow, toCol}
+let is_viewing_history = false;
 
 ChessModule().then(m => {
     module = m;
@@ -38,6 +39,26 @@ ChessModule().then(m => {
         document.getElementById("game-over").classList.add("hidden");
         document.getElementById("overlay-blocker").classList.add("hidden");
         renderHome();
+    });
+    document.getElementById("move-start").addEventListener("click", () => {
+        module.goToStart();
+        is_viewing_history = (module.historyIndex() !== module.historySize());
+        renderBoard(false);
+    });
+    document.getElementById("move-back").addEventListener("click", () => {
+        module.goBack();
+        is_viewing_history = (module.historyIndex() !== module.historySize());
+        renderBoard(false);
+    });
+    document.getElementById("move-forward").addEventListener("click", () => {
+        module.goForward();
+        is_viewing_history = (module.historyIndex() !== module.historySize());
+        renderBoard(false);
+    });
+    document.getElementById("move-end").addEventListener("click", () => {
+        module.goToEnd();
+        is_viewing_history = false;
+        renderBoard(false);
     });
 
     ['N', 'B', 'R', 'Q'].forEach(piece => {
@@ -77,6 +98,7 @@ function renderColor()
 
 function startNewGame()
 {
+    last_move = null;
     module.startGame(chosen_mode, chosen_difficulty, (chosen_color === 0) ? 1 : 0);
     showScreen("game");
     renderBoard(true);
@@ -110,7 +132,7 @@ function renderBoard(new_game)
                 cell.classList.add("dark");     //? Adds a CSS class 'light' to the cell
         }
 
-    if (last_move && !new_game)
+    if (last_move && !new_game && !is_viewing_history)
     {
         if (chosen_color)
         {
@@ -127,6 +149,8 @@ function renderBoard(new_game)
 
 function handleClick(row, col)
 {
+    if (is_viewing_history) return;
+
     clearHighlights();
     last_move = null;
 

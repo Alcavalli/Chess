@@ -34,4 +34,6 @@ public:
     const GameStatus getGameStatus() const;
     const std::vector<Move> getLegalMoves(PieceColor c) const;
     const std::optional<Move> getAiMove();
+    const int getIndex() const;
+    const int getHistorySize() const;
 };

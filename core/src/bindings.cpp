@@ -161,6 +161,18 @@ std::string getAiMove()
     return move;
 }
 
+void goToStart() { game.goToStart(); }
+
+void goBack() { game.goBack(); }
+
+void goForward() { game.goForward(); }
+
+void goToEnd() { game.goToEnd(); }
+
+int historyIndex() { return game.getIndex(); }
+
+int historySize() { return game.getHistorySize(); }
+
 EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them callable by JS
 {
     emscripten::function("getBoard", &getBoardString);
@@ -170,4 +182,10 @@ EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them c
     emscripten::function("applyMove", &applyMove);
     emscripten::function("startGame", &startGame);
     emscripten::function("getAiMove", &getAiMove);
+    emscripten::function("goToStart", &goToStart);
+    emscripten::function("goBack", &goBack);
+    emscripten::function("goForward", &goForward);
+    emscripten::function("goToEnd", &goToEnd);
+    emscripten::function("historyIndex", &historyIndex);
+    emscripten::function("historySize", &historySize);
 }

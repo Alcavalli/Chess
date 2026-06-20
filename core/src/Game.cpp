@@ -120,3 +120,7 @@ const std::optional<Move> Game::getAiMove()
     if (!environment) return std::nullopt;
     return environment->makeMove(board, white_king_moved, white_rook_kingside_moved, white_rook_queenside_moved, black_king_moved, black_rook_kingside_moved, black_rook_queenside_moved, getLastMove());
 }
+
+const int Game::getIndex() const { return current_index; }
+
+const int Game::getHistorySize() const { return move_history.size(); }
