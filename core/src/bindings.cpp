@@ -53,10 +53,12 @@ int getGameStatus()         //* Returns an int for each status of the game
         return 2;
     case GameStatus::BlackWin:
         return 3;
-    case GameStatus::Draw:
-        return 4;
     case GameStatus::Stalemate:
+        return 4;
+    case GameStatus::DrawNoMaterial:
         return 5;
+    case GameStatus::Draw50Moves:
+        return 6;
     default:
         return -1;
     }

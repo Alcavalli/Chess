@@ -16,8 +16,9 @@ private:
     Difficulty difficulty{Difficulty::Medium};
     std::vector<Board> board_history{};
     std::vector<Move> move_history{};
-    int current_index{};
+    int current_index{}, cnt_moves{};
     bool white_king_moved{}, white_rook_kingside_moved{}, white_rook_queenside_moved{}, black_king_moved{}, black_rook_kingside_moved{}, black_rook_queenside_moved{};
+    const bool countMaterial() const;
 
 public:
     Game(GameMode mode = GameMode::PvP, Difficulty diff = Difficulty::Medium, PieceColor ai_c = PieceColor::Black);

@@ -61,6 +61,9 @@ void Game::update(Move move)
             black_rook_kingside_moved = true;
         else    black_rook_queenside_moved = true;
     }
+    if (board.getSquare(move.starting_square.first, move.starting_square.second)->type != PieceType::Pawn && !board.getSquare(move.arrival_square.first, move.arrival_square.second))
+        ++cnt_moves;
+    else    cnt_moves = 0;
     board.applyMove(move);
     board_history.push_back(board);
     ++current_index;
@@ -69,9 +72,46 @@ void Game::update(Move move)
     bool king_moved_2{(current_turn == PieceColor::White) ? white_king_moved : black_king_moved}, rook_kingside_moved_2{(current_turn == PieceColor::White) ? white_rook_kingside_moved : black_rook_kingside_moved}, rook_queenside_moved_2{(current_turn == PieceColor::White) ? white_rook_queenside_moved : black_rook_queenside_moved};
     if (MoveGenerator::generateMoves(board, current_turn, king_moved_2, rook_kingside_moved_2, rook_queenside_moved_2, getLastMove()).empty())
     {
-        if (!MoveGenerator::isInCheck(board, current_turn)) game_status = GameStatus::Draw;
+        if (!MoveGenerator::isInCheck(board, current_turn)) game_status = GameStatus::Stalemate;
         else    game_status = (current_turn == PieceColor::White) ? GameStatus::BlackWin : GameStatus::WhiteWin;
     }
+    else
+    {
+        if (countMaterial())    game_status = GameStatus::DrawNoMaterial;
+        else if (cnt_moves >= 50)   game_status = GameStatus::Draw50Moves;
+    }
+}
+
+const bool Game::countMaterial() const
+{
+    int other{}, knight{}, bishop{}, color{-1};
+    bool same_color{};
+    for (int i{}; i < Constants::BOARD_DIM; ++i)
+        for (int j{}; j < Constants::BOARD_DIM; ++j)
+        {
+            if (!board.getSquare(i, j)) continue;
+            switch (board.getSquare(i, j)->type)
+            {
+            case PieceType::Queen:
+            case PieceType::Rook:
+            case PieceType::Pawn:
+                ++other;
+                break;
+            case PieceType::Knight:
+                ++knight;
+                break;
+            case PieceType::Bishop:
+                ++bishop;
+                if (color == -1)    color = (i + j) % 2;
+                else if (color == (i + j) % 2)  same_color = true;
+                break;
+            default:
+            }
+        }
+    if (other != 0) return false;
+    if (bishop == 0 && knight < 2)  return true;
+    if (knight == 0 && (bishop == 1 || (bishop == 2 && same_color)))    return true;
+    return false;
 }
 
 void Game::goToStart ()

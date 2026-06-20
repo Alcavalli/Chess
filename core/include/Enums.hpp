@@ -6,7 +6,8 @@ enum class GameStatus
     InProgress,
     WhiteWin,
     BlackWin,
-    Draw,
+    DrawNoMaterial,
+    Draw50Moves,
     Stalemate
 };
 

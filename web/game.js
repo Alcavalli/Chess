@@ -99,6 +99,7 @@ function renderColor()
 function startNewGame()
 {
     last_move = null;
+    is_viewing_history = (module.historyIndex() !== module.historySize());
     module.startGame(chosen_mode, chosen_difficulty, (chosen_color === 0) ? 1 : 0);
     showScreen("game");
     renderBoard(true);
@@ -123,6 +124,8 @@ function renderBoard(new_game)
             const cell = document.createElement("div");
             const piece = board_string[row * 8 + col];
             cell.textContent = (piece === '.') ? '' : piece;
+            if (chosen_mode && chosen_color === 1 && new_game)
+                setTimeout(() => aiMove(), 500);
             cell.addEventListener("click", () => handleClick(row, col));    //? If the cell is clicked, it does an action (calling a function in this case)
             board_div.appendChild(cell);
 
@@ -146,6 +149,17 @@ function renderBoard(new_game)
         }
     }
 };
+
+function aiMove()
+{
+    const ai_move_str = module.getAiMove();
+    if (!ai_move_str) return;
+    const parts = ai_move_str.split(',');
+    module.applyMove(Number(parts[0]), Number(parts[1]), Number(parts[2]), Number(parts[3]), 'Q');
+    last_move = {fromRow: Number(parts[0]), fromCol: Number(parts[1]), toRow: Number(parts[2]), toCol: Number(parts[3])};
+    renderBoard(false);
+    checkGameOver();
+}
 
 function handleClick(row, col)
 {
@@ -218,10 +232,7 @@ function handleClick(row, col)
         temp.forEach(coords => {
             if (!coords)    return;     //! Because the last element is an empty string
             if (Number(coords[0]) === row && Number(coords[2]) === col)   //! Index 1 and 3 are ','
-            {
                 exist = true;
-                console.log("Mossa mia: " + coords);
-            }
             if (coords[4] === '4')
                 promotion = true;
         });
@@ -258,28 +269,8 @@ function handleClick(row, col)
             last_move = {fromRow: selected_square.row, fromCol: selected_square.col, toRow: row, toCol: col};
             selected_square = null;
 
-            if (chosen_mode && module.getGameStatus() === 1)        //? PvE
-            {
-                setTimeout(() => {
-                    const ai_move_str = module.getAiMove();
-                    console.log("Mossa ai: " + ai_move_str);
-                    if (!ai_move_str) return;
-                    const parts = ai_move_str.split(',');
-                    module.applyMove(Number(parts[0]), Number(parts[1]), Number(parts[2]), Number(parts[3]), 'Q');
-                    last_move = {fromRow: Number(parts[0]), fromCol: Number(parts[1]), toRow: Number(parts[2]), toCol: Number(parts[3])};
-                    renderBoard(false);
-                    checkGameOver();
-                }, 500);
-            }
-
-            if (chosen_mode === 0)      //* To rotate the board every turn
-            {
-                chosen_color = turn === 0 ? 1 : 0;
-                const blocker = document.getElementById("overlay-blocker");
-                blocker.style.backgroundColor = "transparent";
-                blocker.classList.remove("hidden");
-                setTimeout(() => { blocker.style.backgroundColor = ""; blocker.classList.add("hidden"); renderBoard(); }, 1000);
-            }
+            if (chosen_mode && module.getGameStatus() === 1)
+                setTimeout(() => aiMove(), 500);
         }
     }
 
@@ -304,8 +295,9 @@ function checkGameOver()
     const message = {
         2: "The winner is white!",
         3: "The winner is black!",
-        4: "Draw!",
-        5: "Stalemate!",
+        4: "Stalemate!",
+        5: "Draw! (insufficent material to mate)",
+        6: "Draw! (50 moves w/o capptures or pawn moves)"
     };
     document.getElementById("result-message").textContent = message[status];
     document.getElementById("game-over").classList.remove("hidden");

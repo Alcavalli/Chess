@@ -34,7 +34,7 @@ const std::optional<Move> AI::getBestMove(const Board& board, const std::optiona
     {
         Board copy{board};
         copy.applyMove(x);
-        int score{minimax(copy, false, x, white_king_moved, white_rook_kingside_moved, white_rook_queenside_moved, black_king_moved, black_rook_kingside_moved, black_rook_queenside_moved)};       //? false = enemy turn
+        int score{minimax(copy, color == PieceColor::Black, x, white_king_moved, white_rook_kingside_moved, white_rook_queenside_moved, black_king_moved, black_rook_kingside_moved, black_rook_queenside_moved)};       //? false = enemy turn
         if (color == PieceColor::White ? score > best_score : score < best_score)
         {
             best_move = x;
