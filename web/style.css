@@ -1,20 +1,52 @@
-#board          /* Selects the element with id="board" */
+body
 {
-    display: grid;          /* Activates CSS grid */
-    grid-template-columns: repeat(8, 60px);
-    grid-template-rows: repeat(8, 60px);
-    width: 480px;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
 }
 
-#board div      /* Selects all the divs inside #board (so 'cell') */
+#screen-home
 {
-    width: 60px;
-    height: 60px;
-    display: flex;              /* "Creates" the invisible axis to align */
-    align-items: center;        /* Centers along the cross axis (vertically) */
-    justify-content: center;    /* Centers along the main axis (horizontally) */
-    font-size: 30px;
-    cursor: pointer;
+    background-color: blue;
+
+    /* Uses the whole window height and width */
+    flex-grow: 1;
+    width: 100%;
+
+    /* T center everything */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+#play
+{
+    border: solid 2px rgb(255, 215, 0);
+    width: 50%;
+    border-radius: 10px;
+    background: rgb(255, 235, 0);
+}
+
+#board
+{
+    display: grid;
+    grid-template-columns: repeat(8, 10vmin);
+    grid-template-rows: repeat(8, 10vmin);
+    width: 80vmin;
+}
+
+#board div
+{
+    width: 10vmin;
+    height: 10vmin;
+    font-size: 7vmin;
 }
 
 #board div.light
@@ -57,7 +89,7 @@
 
 .hidden
 {
-    display: none;
+    display: none !important;
 }
 
 #overlay-blocker

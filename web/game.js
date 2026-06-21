@@ -123,7 +123,19 @@ function renderBoard(new_game)
         {
             const cell = document.createElement("div");
             const piece = board_string[row * 8 + col];
-            cell.textContent = (piece === '.') ? '' : piece;
+            cell.textContent = '';
+
+            if (piece !== '.')
+            {
+                const img = document.createElement("img");
+                const color = (piece === piece.toUpperCase()) ? 'w' : 'b';
+                img.src = `../assets/pieces/${color}${piece.toUpperCase()}.svg`;
+                img.style.width = '85%';
+                img.style.height = '85%';
+                img.draggable = false;
+                cell.appendChild(img);
+            }
+
             if (chosen_mode && chosen_color === 1 && new_game && row == from_row && col == from_col)
                 setTimeout(() => aiMove(), 500);
             cell.addEventListener("click", () => handleClick(row, col));    //? If the cell is clicked, it does an action (calling a function in this case)
@@ -169,7 +181,6 @@ function renderBoard(new_game)
 function aiMove()
 {
     const ai_move_str = module.getAiMove();
-    console.log("Mossa ai: " + ai_move_str);
     if (!ai_move_str) return;
     const parts = ai_move_str.split(',');
     module.applyMove(Number(parts[0]), Number(parts[1]), Number(parts[2]), Number(parts[3]), 'Q');
@@ -249,10 +260,7 @@ function handleClick(row, col)
         temp.forEach(coords => {
             if (!coords)    return;     //! Because the last element is an empty string
             if (Number(coords[0]) === row && Number(coords[2]) === col)   //! Index 1 and 3 are ','
-            {
                 exist = true;
-                console.log("Mossa mia: " + coords);
-            }
             if (coords[4] === '4')
                 promotion = true;
         });
