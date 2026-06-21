@@ -1,18 +1,35 @@
 #include "AI.hpp"
 #include "MoveGenerator.hpp"
 
+constexpr std::array<std::array<int, Constants::BOARD_DIM>, Constants::BOARD_DIM> pawn_table{
+    std::array{0, 0, 0, 0, 0, 0, 0, 0}, {5, 10, 10, -20, -20, 10, 10, 5}, {5, -5, -10, 0, 0, -10, -5, 5},
+    {0, 0, 0, 20, 20, 0, 0, 0}, {5, 5, 10, 25, 25, 10, 5, 5}, {10, 10, 20, 30, 30, 20, 10, 10},
+    {50, 50, 50, 50, 50, 50, 50, 50}, {0, 0, 0, 0, 0, 0, 0, 0}};
+constexpr std::array<std::array<int, Constants::BOARD_DIM>, Constants::BOARD_DIM> rook_table{
+    std::array{0, 0, 0, 5, 5, 0, 0, 0}, {-5, 0, 0, 0, 0, 0, 0, -5}, {-5, 0, 0, 0, 0, 0, 0, -5},
+    {-5, 0, 0, 0, 0, 0, 0, -5}, {-5, 0, 0, 0, 0, 0, 0, -5}, {-5, 0, 0, 0, 0, 0, 0, -5},
+    {5, 10, 10, 10, 10, 10, 10, 5}, {0, 0, 0, 0, 0, 0, 0, 0}};
+constexpr std::array<std::array<int, Constants::BOARD_DIM>, Constants::BOARD_DIM> knight_table{
+    std::array{-50, -40, -30, -30, -30, -30, -40, -50}, {-40, -20, 0, 5, 5, 0, -20, -40}, {-30, 5, 10, 15, 15, 10, 5, -30}, {-30, 0, 15, 20, 20, 15, 0, -30}, {-30, 5, 15, 20, 20, 15, 5, -30}, {-30, 0, 10, 15, 15, 10, 0, -30}, {-40, -20, 0, 0, 0, 0, -20, -40}, {-50, -40, -30, -30, -30, -30, -40, -50}};
+constexpr std::array<std::array<int, Constants::BOARD_DIM>, Constants::BOARD_DIM> bishop_table{
+    std::array{-20, -10, -10, -10, -10, -10, -10, -20}, {-10, 5, 0, 0, 0, 0, 5, -10}, {-10, 10, 10, 10, 10, 10, 10, -10}, {-10, 0, 10, 10, 10, 10, 0, -10}, {-10, 5, 5, 10, 10, 5, 5, -10}, {-10, 0, 5, 10, 10, 5, 0, -10}, {-10, 0, 0, 0, 0, 0, 0, -10}, {-20, -10, -10, -10, -10, -10, -10, -20}};
+constexpr std::array<std::array<int, Constants::BOARD_DIM>, Constants::BOARD_DIM> queen_table{
+    std::array{-20, -10, -10, -5, -5, -10, -10, -20}, {-10, 0, 5, 0, 0, 0, 0, -10}, {-10, 5, 5, 5, 5, 5, 0, -10}, {0, 0, 5, 5, 5, 5, 0, 0}, {-5, 0, 5, 5, 5, 5, 0, -5}, {-10, 0, 5, 5, 5, 5, 0, -10}, {-10, 0, 0, 0, 0, 0, 0, -10}, {-20, -10, -10, -5, -5, -10, -10, -20}};
+constexpr std::array<std::array<int, Constants::BOARD_DIM>, Constants::BOARD_DIM> king_table{
+    std::array{20, 30, 10, 0, 0, 10, 30, 20}, {20, 20, 0, 0, 0, 0, 20, 20}, {-10, -20, -20, -20, -20, -20, -20, -10}, {-20, -30, -30, -40, -40, -30, -30, -20}, {-30, -40, -40, -50, -50, -40, -40, -30}, {-30, -40, -40, -50, -50, -40, -40, -30}, {-30, -40, -40, -50, -50, -40, -40, -30}, {-30, -40, -40, -50, -50, -40, -40, -30}};
+
 AI::AI(Difficulty diff, PieceColor c) : difficulty(diff), color(c)
 {
     switch (difficulty)
     {
     case Difficulty::Easy:
-        max_depth = 1;
-        break;
-    case Difficulty::Medium:
         max_depth = 2;
         break;
-    case Difficulty::Hard:
+    case Difficulty::Medium:
         max_depth = 3;
+        break;
+    case Difficulty::Hard:
+        max_depth = 4;
         break;
     }
 }
@@ -111,21 +128,37 @@ int AI::evaluate(const Board& board) const
         for (int j{}; j < Constants::BOARD_DIM; ++j)
         {
             if (!board.getSquare(i, j))  continue;
-            int z{board.getSquare(i, j)->color == PieceColor::White ? +1 : -1};
+            int row{}, col{j}, z{};
+            if (board.getSquare(i, j)->color == PieceColor::White)
+            {
+                row = i;
+                z = +1;
+            }
+            else
+            {
+                row = 7 - i;
+                z = -1;
+            }
+
             switch (board.getSquare(i, j)->type)
             {
             case PieceType::Pawn:
-                cnt += z * 100;
+                cnt += z * (100 + pawn_table[row][col]);
                 break;
             case PieceType::Knight:
+                cnt += z * (300 + knight_table[row][col]);
+                break;
             case PieceType::Bishop:
-                cnt += z * 300;
+                cnt += z * (300 + bishop_table[row][col]);
                 break;
             case PieceType::Rook:
-                cnt += z * 500;
+                cnt += z * (500 + rook_table[row][col]);
                 break;
             case PieceType::Queen:
-                cnt += z * 900;
+                cnt += z * (900 + queen_table[row][col]);
+                break;
+            case PieceType::King:
+                cnt += z * king_table[row][col];
                 break;
             default:
                 cnt = cnt;

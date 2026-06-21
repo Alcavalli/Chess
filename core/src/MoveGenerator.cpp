@@ -202,7 +202,7 @@ std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColo
         else    moves.push_back(Move{{row, col}, {new_row, new_col}});
     }
 
-    if (!king_moved)
+    if (!king_moved && !isInCheck(board, color))
     {
         if (!rook_kingside && board.getSquare(row, col + 1) == std::nullopt && board.getSquare(row, col + 2) == std::nullopt)
         {

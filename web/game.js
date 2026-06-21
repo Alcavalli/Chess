@@ -124,7 +124,7 @@ function renderBoard(new_game)
             const cell = document.createElement("div");
             const piece = board_string[row * 8 + col];
             cell.textContent = (piece === '.') ? '' : piece;
-            if (chosen_mode && chosen_color === 1 && new_game)
+            if (chosen_mode && chosen_color === 1 && new_game && row == from_row && col == from_col)
                 setTimeout(() => aiMove(), 500);
             cell.addEventListener("click", () => handleClick(row, col));    //? If the cell is clicked, it does an action (calling a function in this case)
             board_div.appendChild(cell);
@@ -271,6 +271,15 @@ function handleClick(row, col)
 
             if (chosen_mode && module.getGameStatus() === 1)
                 setTimeout(() => aiMove(), 500);
+
+            if (chosen_mode === 0)      //* To rotate the board every turn
+            {
+                chosen_color = turn === 0 ? 1 : 0;
+                const blocker = document.getElementById("overlay-blocker");
+                blocker.style.backgroundColor = "transparent";
+                blocker.classList.remove("hidden");
+                setTimeout(() => { blocker.style.backgroundColor = ""; blocker.classList.add("hidden"); renderBoard(); }, 1000);
+            }
         }
     }
 
