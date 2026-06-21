@@ -135,6 +135,22 @@ function renderBoard(new_game)
                 cell.classList.add("dark");     //? Adds a CSS class 'light' to the cell
         }
 
+    if (is_viewing_history && module.historyIndex() > 0)
+    {
+        const past_move = module.getMove(module.historyIndex() - 1);
+        const past_move_parts = past_move.split(',');
+        if (past_move && chosen_color)
+        {
+            board_div.children[Number(past_move_parts[0]) * 8 + (7 - Number(past_move_parts[1]))].classList.add("moved");
+            board_div.children[Number(past_move_parts[2]) * 8 + (7 - Number(past_move_parts[3]))].classList.add("moved");
+        }
+        else if (past_move)
+        {
+            board_div.children[(7 - Number(past_move_parts[0])) * 8 + Number(past_move_parts[1])].classList.add("moved");
+            board_div.children[(7 - Number(past_move_parts[2])) * 8 + Number(past_move_parts[3])].classList.add("moved");
+        }
+    }
+
     if (last_move && !new_game && !is_viewing_history)
     {
         if (chosen_color)
@@ -153,6 +169,7 @@ function renderBoard(new_game)
 function aiMove()
 {
     const ai_move_str = module.getAiMove();
+    console.log("Mossa ai: " + ai_move_str);
     if (!ai_move_str) return;
     const parts = ai_move_str.split(',');
     module.applyMove(Number(parts[0]), Number(parts[1]), Number(parts[2]), Number(parts[3]), 'Q');
@@ -232,7 +249,10 @@ function handleClick(row, col)
         temp.forEach(coords => {
             if (!coords)    return;     //! Because the last element is an empty string
             if (Number(coords[0]) === row && Number(coords[2]) === col)   //! Index 1 and 3 are ','
+            {
                 exist = true;
+                console.log("Mossa mia: " + coords);
+            }
             if (coords[4] === '4')
                 promotion = true;
         });

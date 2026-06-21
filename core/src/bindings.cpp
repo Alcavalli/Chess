@@ -175,6 +175,13 @@ int historyIndex() { return game.getIndex(); }
 
 int historySize() { return game.getHistorySize(); }
 
+std::string getMove(int index)
+{
+    std::optional<Move> move{game.getMoveAt(index)};
+    if (!move)  return "";
+    return std::to_string(move->starting_square.first) + ',' + std::to_string(move->starting_square.second) + ',' + std::to_string(move->arrival_square.first) + ',' + std::to_string(move->arrival_square.second);
+}
+
 EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them callable by JS
 {
     emscripten::function("getBoard", &getBoardString);
@@ -190,4 +197,5 @@ EMSCRIPTEN_BINDINGS(chess)      //? To register the C++ functions, making them c
     emscripten::function("goToEnd", &goToEnd);
     emscripten::function("historyIndex", &historyIndex);
     emscripten::function("historySize", &historySize);
+    emscripten::function("getMove", &getMove);
 }

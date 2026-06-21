@@ -37,4 +37,5 @@ public:
     const std::optional<Move> getAiMove();
     const int getIndex() const;
     const int getHistorySize() const;
+    const std::optional<Move> getMoveAt(int index) const;
 };

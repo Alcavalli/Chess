@@ -164,3 +164,5 @@ const std::optional<Move> Game::getAiMove()
 const int Game::getIndex() const { return current_index; }
 
 const int Game::getHistorySize() const { return move_history.size(); }
+
+const std::optional<Move> Game::getMoveAt(int index) const { return move_history[index]; }

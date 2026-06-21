@@ -1,5 +1,6 @@
 #include "AI.hpp"
 #include "MoveGenerator.hpp"
+#include <algorithm>
 
 constexpr std::array<std::array<int, Constants::BOARD_DIM>, Constants::BOARD_DIM> pawn_table{
     std::array{0, 0, 0, 0, 0, 0, 0, 0}, {5, 10, 10, -20, -20, 10, 10, 5}, {5, -5, -10, 0, 0, -10, -5, 5},
@@ -47,6 +48,9 @@ const std::optional<Move> AI::getBestMove(const Board& board, const std::optiona
     std::optional<Move> best_move{};
     int best_score{color == PieceColor::White ? INT_MIN : INT_MAX};     //? white = starts at lowest
     std::vector<Move> moves{MoveGenerator::generateMoves(board, color, king_moved, rook_kingside_moved, rook_queenside_moved, last_m)};
+
+    std::sort(moves.begin(), moves.end(), [&](const Move& a, const Move& b){ return moveOrderScore(board, a) > moveOrderScore(board, b); });
+
     for (auto& x : moves)
     {
         Board copy{board};
@@ -77,6 +81,8 @@ int AI::minimax(Board board, bool is_maximizing, std::optional<Move> last_m, boo
 
     if (is_maximizing)
     {
+        std::sort(moves.begin(), moves.end(), [&](const Move& a, const Move& b){ return moveOrderScore(board, a) > moveOrderScore(board, b); });
+
         int best{-Constants::INF};
         for (auto& x : moves)
         {
@@ -99,6 +105,8 @@ int AI::minimax(Board board, bool is_maximizing, std::optional<Move> last_m, boo
     }
     else
     {
+        std::sort(moves.begin(), moves.end(), [&](const Move& a, const Move& b){ return moveOrderScore(board, a) > moveOrderScore(board, b); });
+
         int best{Constants::INF};
         for (auto& x : moves)
         {
@@ -165,4 +173,40 @@ int AI::evaluate(const Board& board) const
             }
         }
     return cnt;
+}
+
+const int AI::pieceValue(const Square& sq) const
+{
+    switch (sq->type)
+    {
+    case PieceType::Pawn:
+        return 100;
+    case PieceType::Knight:
+    case PieceType::Bishop:
+        return 300;
+    case PieceType::Rook:
+        return 400;
+    case PieceType::Queen:
+        return 500;
+    default:
+        return 0;
+    }
+}
+
+const int AI::moveOrderScore(const Board& board, const Move& m) const
+{
+    int score{};
+
+    //* Capture bonus
+    if (board.getSquare(m.arrival_square.first, m.arrival_square.second))
+    {
+        int victim{pieceValue(board.getSquare(m.arrival_square.first, m.arrival_square.second))};
+        int attacker{pieceValue(board.getSquare(m.starting_square.first, m.starting_square.second))};
+        score += 10 * victim - attacker;
+    }
+
+    //* Pomotion bonus
+    if (m.type_move == MoveType::Promotion) score += 900;
+
+    return score;
 }

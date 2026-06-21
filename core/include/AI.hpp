@@ -13,6 +13,8 @@ private:
     int minimax(Board board, bool is_maximizing, std::optional<Move> last_m, bool w_king, bool w_rook_king, bool w_rook_queen, bool b_king, bool b_rook_king, bool b_rook_queen, int alpha = -Constants::INF, int beta = +Constants::INF, int depth = 0) const;
     const std::optional<Move> getBestMove(const Board& board, const std::optional<Move> last_m);
     int evaluate(const Board& board) const;
+    const int pieceValue(const Square& sq) const;
+    const int moveOrderScore(const Board& board, const Move& m) const;
 
 public:
     AI(Difficulty diff, PieceColor c);
