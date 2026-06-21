@@ -204,7 +204,7 @@ std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColo
 
     if (!king_moved && !isInCheck(board, color))
     {
-        if (!rook_kingside && board.getSquare(row, col + 1) == std::nullopt && board.getSquare(row, col + 2) == std::nullopt)
+        if (col + 2 < Constants::BOARD_DIM && !rook_kingside && board.getSquare(row, col + 1) == std::nullopt && board.getSquare(row, col + 2) == std::nullopt)
         {
             Board copy{board};
             copy.applyMove(Move{{row, col}, {row, col + 1}});
@@ -215,7 +215,7 @@ std::vector<Move> MoveGenerator::generateKingMoves(const Board& board, PieceColo
                     moves.push_back(Move{{row, col}, {row, col + 2}, MoveType::ShortCastle});
             }
         }
-        if (!rook_queenside && board.getSquare(row, col - 1) == std::nullopt && board.getSquare(row, col - 2) == std::nullopt && board.getSquare(row, col - 3) == std::nullopt)
+        if (col - 3 > 0 &&!rook_queenside && board.getSquare(row, col - 1) == std::nullopt && board.getSquare(row, col - 2) == std::nullopt && board.getSquare(row, col - 3) == std::nullopt)
         {
             Board copy{board};
             copy.applyMove(Move{{row, col}, {row, col - 1}});

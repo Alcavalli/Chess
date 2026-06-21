@@ -198,7 +198,9 @@ const int AI::moveOrderScore(const Board& board, const Move& m) const
     int score{};
 
     //* Capture bonus
-    if (board.getSquare(m.arrival_square.first, m.arrival_square.second))
+    if (m.arrival_square.first >= 0 && m.arrival_square.first < Constants::BOARD_DIM &&
+        m.arrival_square.second >= 0 && m.arrival_square.second < Constants::BOARD_DIM &&
+        board.getSquare(m.arrival_square.first, m.arrival_square.second))
     {
         int victim{pieceValue(board.getSquare(m.arrival_square.first, m.arrival_square.second))};
         int attacker{pieceValue(board.getSquare(m.starting_square.first, m.starting_square.second))};
