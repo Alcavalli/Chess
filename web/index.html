@@ -1,65 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
     <head>
-        <meta charset = "UTF-8">
-        <title>Chess</title>
-        <link rel = "stylesheet"  href = "style.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Scacchiavalli</title>
+        <link rel="stylesheet" href="style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     </head>
 
     <body>
-        <div id = "screen-home">
-            <h1 id = "home-title">SCACCHIAVALLI</h1>
-            <button id = "play">PLAY NOW</button>
+        <div id="screen-home" class="screen">
+            <div class="header-titles">
+                <h1 id="home-title">SCACCHIAVALLI</h1>
+                <p class="subtitle">The Strategic Playground</p>
+            </div>
+
+            <img id="home-board-img" src="../assets/3d_board.png" alt="Scacchiera 3D">
+
+            <button id="play" class="btn-primary animate-btn">P L A Y &nbsp; N O W</button>
         </div>
-        <div id = "screen-mode"  class = "hidden">
-            <h1>Choose a game mode</h1>
-            <button id = "back-mode">✕</button>
-            <button id = "PvP">PvP (offline)</button>
-            <button id = "PvE">PvE (vs AI)</button>
+
+        <div id="screen-mode" class="screen hidden">
+            <div class="menu-header">
+                <h2>CHOOSE A GAME MODE:</h2>
+            </div>
+            <div class="card-container">
+                <button id="PvP" class="card-btn animate-btn">
+                    <div class="icon-circle pink-icon">👥</div>
+                    <div class="card-text">
+                        <h3>PvP</h3>
+                        <p>PLAYER VS PLAYER</p>
+                    </div>
+                </button>
+                <button id="PvE" class="card-btn animate-btn">
+                    <div class="icon-circle green-icon">🤖</div>
+                    <div class="card-text">
+                        <h3>PvE</h3>
+                        <p>PLAYER VS ENGINE</p>
+                    </div>
+                </button>
+            </div>
+            <button id="back-mode" class="btn-back animate-btn">← Back</button>
         </div>
-        <div id = "screen-difficulty"  class = "hidden">
-            <h1>Choose a difficulty</h1>
-            <button id = "back-difficulty">✕</button>
-            <button id = "easy">Easy</button>
-            <button id = "medium">Medium</button>
-            <button id = "hard">Hard</button>
+
+        <div id="screen-difficulty" class="screen hidden">
+            <div class="menu-header">
+                <h2>CHOOSE A DIFFICULTY:</h2>
+            </div>
+            <div class="card-container">
+                <button id="easy" class="diff-btn diff-easy animate-btn">
+                    <span class="diff-icon">👶</span>
+                    <h3>Easy</h3>
+                    <p>Casual Play</p>
+                </button>
+                <button id="medium" class="diff-btn diff-medium animate-btn">
+                    <span class="diff-icon">👤</span>
+                    <h3>Medium</h3>
+                    <p>Standard</p>
+                </button>
+                <button id="hard" class="diff-btn diff-hard animate-btn">
+                    <span class="diff-icon">🧠</span>
+                    <h3>Hard</h3>
+                    <p>Pro Challenge</p>
+                </button>
+            </div>
+            <button id="back-difficulty" class="btn-back animate-btn">← Back</button>
         </div>
-        <div id = "screen-color"  class = "hidden">
-            <h1>Choose your color</h1>
-            <button id = "back-color">✕</button>
-            <button id = "white">White</button>
-            <button id = "black">Black</button>
-            <button id = "random">Random</button>
+
+        <div id="screen-color" class="screen hidden">
+            <div class="menu-header">
+                <h2>CHOOSE YOUR COLOR:</h2>
+                <p>Whose side will you take today?</p>
+            </div>
+            <div class="card-container">
+                <button id="white" class="color-btn color-white animate-btn">
+                    <span class="chess-icon">♙</span> White <span class="tag tag-pink">First Move</span>
+                </button>
+                <button id="black" class="color-btn color-black animate-btn">
+                    <span class="chess-icon">♟</span> Black <span class="tag tag-grey">Strategic</span>
+                </button>
+                <button id="random" class="color-btn color-random animate-btn">
+                    <span class="chess-icon">⚄</span> Random <span class="tag tag-pink">Feeling Lucky?</span>
+                </button>
+            </div>
+            <button id="back-color" class="btn-back animate-btn">← Back</button>
         </div>
-        <div id = "screen-game"  class = "hidden">
-            <div id = "board-container">
-                <button id = "quit-game">✕</button>
-                <center><div id = "board"></div></center>
-                <div id = "history-controls">
-                    <button id = "move-start">⋘</button>
-                    <button id = "move-back">◀</button>
-                    <button id = "move-forward">▶</button>
-                    <button id = "move-end">⋙</button>
+
+        <div id="screen-game" class="screen hidden">
+            <div id="board-container">
+                <div class="game-header">
+                    <button id="quit-game" class="btn-icon">✕</button>
+                    <h2>SCACCHIAVALLI</h2>
+                    <div style="width: 30px;"></div> </div>
+
+                <div id="move-history-container">
+                    <div id="move-history-list"></div>
+                    <div id="move-explanation">Inizia la partita!</div>
+                </div>
+
+                <div class="board-wrapper">
+                    <div id="board"></div>
+                </div>
+
+                <div id="history-controls">
+                    <button id="move-start" class="ctrl-btn">⋘</button>
+                    <button id="move-back" class="ctrl-btn">◀</button>
+                    <button id="move-forward" class="ctrl-btn">▶</button>
+                    <button id="move-end" class="ctrl-btn">⋙</button>
                 </div>
             </div>
         </div>
 
-        <div id = "game-over"  class = "hidden">
-            <button id = "close-overlay">✕</button>
-            <p id = "result-message"></p>
-            <button id = "play-again">Play Again</button>
-            <button id = "quit-over">Leave</button>
+        <div id="game-over" class="overlay-box hidden">
+            <button id="close-overlay" class="close-btn">✕</button>
+            <h2 id="result-message"></h2>
+            <div class="overlay-actions">
+                <button id="play-again" class="btn-primary animate-btn">Play Again</button>
+                <button id="quit-over" class="btn-secondary animate-btn">Leave</button>
+            </div>
         </div>
 
-        <div id = "overlay-blocker"  class = "hidden"></div>
-        <div id = "promotion-picker"  class = "hidden">
-            <div id = 'N'><h1>N</h1></div>
-            <div id = 'B'><h1>B</h1></div>
-            <div id = 'R'><h1>R</h1></div>
-            <div id = 'Q'><h1>Q</h1></div>
+        <div id="overlay-blocker" class="hidden"></div>
+
+        <div id="promotion-picker" class="overlay-box hidden">
+            <h3>Scegli la promozione</h3>
+            <div class="promo-options">
+                <div id="N" class="promo-btn">♞</div>
+                <div id="B" class="promo-btn">♝</div>
+                <div id="R" class="promo-btn">♜</div>
+                <div id="Q" class="promo-btn">♛</div>
+            </div>
         </div>
 
-        <script src = "chess.js"></script>
-        <script src = "game.js"></script>
+        <script src="../wam/chess.js"></script>
+        <script src="game.js"></script>
     </body>
 </html>

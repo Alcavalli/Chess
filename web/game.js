@@ -1,13 +1,16 @@
 let module = null;
-let selected_square = null;     //? {row, col} or null
+let selected_square = null;     // {row, col}
 let board_string = '';
 const board_div = document.getElementById("board");
-let pending_promotion = null;   //? {fromRow, fromCol, toRow, toCol}
+let pending_promotion = null;   // {fromRow, fromCol, toRow, toCol}
 let chosen_mode = null;
 let chosen_difficulty = null;
 let chosen_color = null;
-let last_move = null;           //? {fromRow, fromCol, toRow, toCol}
+let last_move = null;           // {fromRow, fromCol, toRow, toCol}
 let is_viewing_history = false;
+
+const pezzoNomi = {'P': "Pedone", 'R': "Torre", 'N': "Cavallo", 'B': "Alfiere", 'Q': "Regina", 'K': "Re" };
+const colonneScacchiera = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
 ChessModule().then(m => {
     module = m;
@@ -25,6 +28,7 @@ ChessModule().then(m => {
     document.getElementById("white").addEventListener("click", () => { chosen_color = 0; startNewGame(); });
     document.getElementById("black").addEventListener("click", () => { chosen_color = 1; startNewGame(); });
     document.getElementById("random").addEventListener("click", () => { chosen_color = Math.random() < 0.5 ? 0 : 1; startNewGame(); });
+
     document.getElementById("quit-game").addEventListener("click", () => renderHome());
     document.getElementById("close-overlay").addEventListener("click", () => {
         document.getElementById("game-over").classList.add("hidden");
@@ -40,6 +44,7 @@ ChessModule().then(m => {
         document.getElementById("overlay-blocker").classList.add("hidden");
         renderHome();
     });
+
     document.getElementById("move-start").addEventListener("click", () => {
         module.goToStart();
         is_viewing_history = (module.historyIndex() !== module.historySize());
@@ -76,54 +81,97 @@ ChessModule().then(m => {
 function renderHome()
 {
     showScreen("home");
-    chosen_mode = 0;
-    chosen_difficulty = 0;
-    chosen_color = 0;
+    chosen_mode = 0; chosen_difficulty = 0; chosen_color = 0;
 }
 
-function renderMode()
-{
-    showScreen("mode");
-}
-
-function renderDifficulty()
-{
-    showScreen("difficulty");
-}
-
-function renderColor()
-{
-    showScreen("color");
-}
+function renderMode() { showScreen("mode"); }
+function renderDifficulty() { showScreen("difficulty"); }
+function renderColor() { showScreen("color"); }
 
 function startNewGame()
 {
     last_move = null;
-    is_viewing_history = (module.historyIndex() !== module.historySize());
+    is_viewing_history = false;
     module.startGame(chosen_mode, chosen_difficulty, (chosen_color === 0) ? 1 : 0);
     showScreen("game");
     renderBoard(true);
 }
 
+function updateHistoryUI()
+{
+    const historyList = document.getElementById("move-history-list");
+    const explanationDiv = document.getElementById("move-explanation");
+    historyList.innerHTML = '';
+
+    const size = module.historySize();
+    const currentIndex = module.historyIndex();
+
+    if (size === 0)
+        {
+        explanationDiv.textContent = "Inizia la partita! Il bianco muove per primo.";
+        return;
+    }
+
+    for (let i = 0; i < size; i++)
+    {
+        const moveBtn = document.createElement("div");
+        moveBtn.classList.add("history-move");
+        const isWhite = (i % 2 === 0);
+        const turnNum = Math.floor(i / 2) + 1;
+
+        const moveData = module.getMove(i).split(',');
+        const destFile = colonneScacchiera[Number(moveData[3])];
+        const destRank = Number(moveData[2]) + 1;
+        moveBtn.textContent = (isWhite ? `${turnNum}. ` : '') + destFile + destRank;
+
+        if (i === currentIndex - 1)
+        {
+            moveBtn.classList.add("active");
+            const pName = pezzoNomi[board_string[Number(moveData[2]) * 8 + Number(moveData[3])].toUpperCase()] || "Pezzo";
+            const startFile = colonneScacchiera[Number(moveData[1])];
+            const startRank = Number(moveData[0]) + 1;
+
+            let text = `${pName} si sposta da ${startFile}${startRank} a ${destFile}${destRank}`;
+            if (pName === "Pedone" && (destRank === 8 || destRank === 1))
+                text += ". Promozione effettuata!";
+            explanationDiv.textContent = text;
+        }
+
+        moveBtn.addEventListener("click", () => {
+            const targetIndex = i + 1;
+            if (targetIndex < currentIndex)
+                while(module.historyIndex() > targetIndex) module.goBack();
+            else if (targetIndex > currentIndex)
+                while(module.historyIndex() < targetIndex) module.goForward();
+            is_viewing_history = (module.historyIndex() !== module.historySize());
+            renderBoard(false);
+        });
+
+        historyList.appendChild(moveBtn);
+    }
+
+    const activeBtn = historyList.querySelector('.active');
+    if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 function renderBoard(new_game)
 {
-    // Saves the board string and div
     board_string = module.getBoard();
-    board_div.innerHTML = '';       //* To empty the #board div
+    board_div.innerHTML = '';
 
-    // Creates the cells
     const from_row = chosen_color === 0 ? 7 : 0;
     const to_row = chosen_color === 0 ? -1 : 8;
     const from_col = chosen_color === 0 ? 0 : 7;
     const to_col = chosen_color === 0 ? 8 : -1;
     const step_row = chosen_color === 0 ? -1 : +1;
     const step_col = chosen_color === 0 ? +1 : -1;
+
     for (let row = from_row; row !== to_row; row += step_row)
+    {
         for (let col = from_col; col != to_col; col += step_col)
         {
             const cell = document.createElement("div");
             const piece = board_string[row * 8 + col];
-            cell.textContent = '';
 
             if (piece !== '.')
             {
@@ -138,14 +186,14 @@ function renderBoard(new_game)
 
             if (chosen_mode && chosen_color === 1 && new_game && row == from_row && col == from_col)
                 setTimeout(() => aiMove(), 500);
-            cell.addEventListener("click", () => handleClick(row, col));    //? If the cell is clicked, it does an action (calling a function in this case)
+
+            cell.addEventListener("click", () => handleClick(row, col));
             board_div.appendChild(cell);
 
-            if ((row + col) % 2)
-                cell.classList.add("light");    //? Adds a CSS class 'dark' to the cell
-            else
-                cell.classList.add("dark");     //? Adds a CSS class 'light' to the cell
+            if ((row + col) % 2) cell.classList.add("light");
+            else cell.classList.add("dark");
         }
+    }
 
     if (is_viewing_history && module.historyIndex() > 0)
     {
@@ -176,7 +224,9 @@ function renderBoard(new_game)
             board_div.children[(7 - last_move.toRow) * 8 + last_move.toCol].classList.add("moved");
         }
     }
-};
+
+    updateHistoryUI();
+}
 
 function aiMove()
 {
@@ -199,12 +249,11 @@ function handleClick(row, col)
     const piece = board_string[row * 8 + col];
     const turn = (chosen_mode === 0) ? module.getCurrentTurn() : chosen_color;
     let cell = null;
-    if (chosen_color)
-        cell = board_div.children[row * 8 + (7 - col)];
-    else
-        cell = board_div.children[(7 - row) * 8 + col];
 
-    if (piece !== '.' && ((turn === 0 && piece === piece.toUpperCase()) || (turn === 1 && piece === piece.toLowerCase())))      //* If clicks a friendly piece
+    if (chosen_color) cell = board_div.children[row * 8 + (7 - col)];
+    else cell = board_div.children[(7 - row) * 8 + col];
+
+    if (piece !== '.' && ((turn === 0 && piece === piece.toUpperCase()) || (turn === 1 && piece === piece.toLowerCase())))
     {
         if (selected_square !== null && selected_square.row == row && selected_square.col == col)
         {
@@ -216,60 +265,54 @@ function handleClick(row, col)
             selected_square = {row, col};
             cell.classList.add("selected");
 
-            const names = {'P':"Pawn", 'R':"Rook", 'N':"Knight", 'B':"Bishop", 'Q':"Queen", 'K':"King"};
             const label = document.createElement("div");
-            label.textContent = names[piece.toUpperCase()];
+            label.textContent = pezzoNomi[piece.toUpperCase()];
             label.classList.add("piece-label");
             cell.appendChild(label);
-            setTimeout(() => label.remove(), 750);          //? Disappears after .75 sec
+            setTimeout(() => label.remove(), 750);
 
             const legal_moves = module.getLegalMoves(row, col);
             const temp = legal_moves.split('|');
             temp.forEach(coords => {
-                if (!coords)    return;     //! Because the last element is an empty string
+                if (!coords) return;
 
                 let target_cell;
-                if (chosen_color)
-                    target_cell = board_div.children[Number(coords[0]) * 8 + (7 - Number(coords[2]))];
-                else
-                    target_cell = board_div.children[(7 - Number(coords[0])) * 8 + Number(coords[2])];
+                if (chosen_color) target_cell = board_div.children[Number(coords[0]) * 8 + (7 - Number(coords[2]))];
+                else target_cell = board_div.children[(7 - Number(coords[0])) * 8 + Number(coords[2])];
 
-                if (board_string[Number(coords[0]) * 8 + Number(coords[2])] === '.')
-                    target_cell.classList.add("legal-empty");
-                else
-                    target_cell.classList.add("legal-capture");
+                if (board_string[Number(coords[0]) * 8 + Number(coords[2])] === '.') target_cell.classList.add("legal-empty");
+                else target_cell.classList.add("legal-capture");
             });
         }
     }
     else
     {
-        if (piece !== '.' && ((turn === 0 && piece === piece.toLowerCase()) || (turn === 1 && piece === piece.toUpperCase())))      //* If clicks an enemy piece that can't eat
+        if (piece !== '.' && ((turn === 0 && piece === piece.toLowerCase()) || (turn === 1 && piece === piece.toUpperCase())))
         {
-            const names = {'P':"Pawn", 'R':"Rook", 'N':"Knight", 'B':"Bishop", 'Q':"Queen", 'K':"King"};
             const label = document.createElement("div");
-            label.textContent = names[piece.toUpperCase()];
+            label.textContent = pezzoNomi[piece.toUpperCase()];
             label.classList.add("piece-label");
             cell.appendChild(label);
-            setTimeout(() => label.remove(), 750);          //? Disappears after 1.5 sec
+            setTimeout(() => label.remove(), 750);
         }
 
-        if (selected_square === null)   return;
+        if (selected_square === null) return;
         let exist = false, promotion = false;
         const legal_moves = module.getLegalMoves(selected_square.row, selected_square.col);
         const temp = legal_moves.split('|');
         temp.forEach(coords => {
-            if (!coords)    return;     //! Because the last element is an empty string
-            if (Number(coords[0]) === row && Number(coords[2]) === col)   //! Index 1 and 3 are ','
-                exist = true;
-            if (coords[4] === '4')
-                promotion = true;
+            if (!coords) return;
+            if (Number(coords[0]) === row && Number(coords[2]) === col) exist = true;
+            if (coords[4] === '4') promotion = true;
         });
+
         if (!exist)
         {
             cell.classList.remove("selected");
             selected_square = null;
         }
-        else
+
+    else
         {
             if (promotion)
             {
@@ -280,27 +323,15 @@ function handleClick(row, col)
                 return;
             }
             module.applyMove(selected_square.row, selected_square.col, row, col, 'P');
-            renderBoard(false);
-            let starting_cell, arrival_cell;
-            if (chosen_color)
-            {
-                starting_cell = board_div.children[selected_square.row * 8 + (7 - selected_square.col)];
-                arrival_cell = board_div.children[row * 8 + (7 - col)];
-            }
-            else
-            {
-                starting_cell = board_div.children[(7 - selected_square.row) * 8 + selected_square.col];
-                arrival_cell = board_div.children[(7 - row) * 8 + col];
-            }
-            starting_cell.classList.add("moved");
-            arrival_cell.classList.add("moved");
+
             last_move = {fromRow: selected_square.row, fromCol: selected_square.col, toRow: row, toCol: col};
             selected_square = null;
 
-            if (chosen_mode && module.getGameStatus() === 1)
-                setTimeout(() => aiMove(), 500);
+            renderBoard(false);
 
-            if (chosen_mode === 0)      //* To rotate the board every turn
+            if (chosen_mode && module.getGameStatus() === 1) setTimeout(() => aiMove(), 500);
+
+            if (chosen_mode === 0)
             {
                 chosen_color = turn === 0 ? 1 : 0;
                 const blocker = document.getElementById("overlay-blocker");
@@ -310,9 +341,8 @@ function handleClick(row, col)
             }
         }
     }
-
     checkGameOver();
-};
+}
 
 function clearHighlights()
 {
@@ -328,13 +358,14 @@ function clearHighlights()
 function checkGameOver()
 {
     const status = module.getGameStatus();
-    if (status === 1)   return 0;       //* In Progress
+    if (status === 1) return 0;
+
     const message = {
-        2: "The winner is white!",
-        3: "The winner is black!",
-        4: "Stalemate!",
-        5: "Draw! (insufficent material to mate)",
-        6: "Draw! (50 moves w/o capptures or pawn moves)"
+        2: "Il bianco vince!",
+        3: "Il nero vince!",
+        4: "Stallo!",
+        5: "Patta! (materiale insufficiente)",
+        6: "Patta! (regola 50 mosse)"
     };
     document.getElementById("result-message").textContent = message[status];
     document.getElementById("game-over").classList.remove("hidden");
