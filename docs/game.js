@@ -177,7 +177,7 @@ function renderBoard(new_game)
             {
                 const img = document.createElement("img");
                 const color = (piece === piece.toUpperCase()) ? 'w' : 'b';
-                img.src = `../assets/pieces/${color}${piece.toUpperCase()}.svg`;
+                img.src = `assets/pieces/${color}${piece.toUpperCase()}.svg`;
                 img.style.width = '85%';
                 img.style.height = '85%';
                 img.draggable = false;
